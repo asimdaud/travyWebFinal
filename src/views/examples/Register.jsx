@@ -14,19 +14,17 @@ import {
   InputGroup,
   Container,
   Row,
-  Col
+  Col,
 } from "reactstrap";
 
 // core components
 import PubNavbar from "components/Navbars/PubNavbar.jsx";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 
-
-import { CreateUser } from '../../services/authServices';
-import 'firebase/auth';
+import { CreateUser } from "../../services/authServices";
+import "firebase/auth";
 
 class Register extends React.Component {
-
   // componentDidMount() {
   //   document.documentElement.scrollTop = 0;
   //   document.scrollingElement.scrollTop = 0;
@@ -35,34 +33,35 @@ class Register extends React.Component {
 
   constructor() {
     super();
-  this.state = {
-    username:'',
-    name:'',
-    email:'',
-    password:'',
-    bio:''
-  }
+    this.state = {
+      username: "",
+      name: "",
+      email: "",
+      password: "",
+      bio: "",
+    };
   }
   handleChange = (e) => {
     this.setState({
-      [e.target.id]:e.target.value
-    })
-  }
-  
-    handleSubmit  = e => {
-      e.preventDefault();
-      localStorage.clear();
-      const {username, name, email, password, bio} = this.state;
-      console.log(this.state);
-      // CreateUser()
-      CreateUser(username, name,email,password, bio).then((res)=>{
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    localStorage.clear();
+    const { username, name, email, password, bio } = this.state;
+    console.log(this.state);
+    // CreateUser()
+    CreateUser(username, name, email, password, bio)
+      .then((res) => {
         console.log(res);
         this.props.history.push("/profile");
-      }).catch((err)=>{
-        console.log(err);
       })
-    };    
-
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   render() {
     return (
@@ -93,7 +92,7 @@ class Register extends React.Component {
                           className="btn-neutral btn-icon mr-4"
                           color="default"
                           href="#pablo"
-                          onClick={e => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()}
                         >
                           <span className="btn-inner--icon mr-1">
                             <img
@@ -107,7 +106,7 @@ class Register extends React.Component {
                           className="btn-neutral btn-icon ml-1"
                           color="default"
                           href="#pablo"
-                          onClick={e => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()}
                         >
                           <span className="btn-inner--icon mr-1">
                             <img
@@ -123,15 +122,25 @@ class Register extends React.Component {
                       <div className="text-center text-muted mb-4">
                         <small>Or sign up with credentials</small>
                       </div>
-                      <Form role="form" onSubmit={this.handleSubmit }>
+                      <Form role="form" onSubmit={this.handleSubmit}>
                         <FormGroup>
-                        <InputGroup className="input-group-alternative mb-3">
+                          <InputGroup className="input-group-alternative mb-3">
                             <InputGroupAddon addonType="prepend">
                               <InputGroupText>
                                 <i className="ni ni-email-83" />
                               </InputGroupText>
                             </InputGroupAddon>
-                            <Input placeholder="Username" type="text" id="username" onChange={this.handleChange} />
+                            <Input
+                              // style={{
+                                
+                              //   color:"orange",
+                              //   backgroundColor:"pink"
+                              // }}
+                              placeholder="Username"
+                              type="text"
+                              id="username"
+                              onChange={this.handleChange}
+                            />
                           </InputGroup>
                           <InputGroup className="input-group-alternative mb-3">
                             <InputGroupAddon addonType="prepend">
@@ -139,7 +148,12 @@ class Register extends React.Component {
                                 <i className="ni ni-hat-3" />
                               </InputGroupText>
                             </InputGroupAddon>
-                            <Input placeholder="Name" type="text"  id="name" onChange={this.handleChange}/>
+                            <Input
+                              placeholder="Name"
+                              type="text"
+                              id="name"
+                              onChange={this.handleChange}
+                            />
                           </InputGroup>
                         </FormGroup>
                         <FormGroup>
@@ -149,7 +163,12 @@ class Register extends React.Component {
                                 <i className="ni ni-email-83" />
                               </InputGroupText>
                             </InputGroupAddon>
-                            <Input placeholder="Email" type="email" id="email" onChange={this.handleChange} />
+                            <Input
+                              placeholder="Email"
+                              type="email"
+                              id="email"
+                              onChange={this.handleChange}
+                            />
                           </InputGroup>
                         </FormGroup>
                         <FormGroup>
@@ -159,17 +178,28 @@ class Register extends React.Component {
                                 <i className="ni ni-lock-circle-open" />
                               </InputGroupText>
                             </InputGroupAddon>
-                            <Input placeholder="Password" type="password"  id="password" onChange={this.handleChange} autoComplete="off" />
+                            <Input
+                              placeholder="Password"
+                              type="password"
+                              id="password"
+                              onChange={this.handleChange}
+                              autoComplete="off"
+                            />
                           </InputGroup>
                         </FormGroup>
                         <InputGroup className="input-group-alternative mb-3">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
-                                <i className="ni ni-email-83" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input placeholder="Bio" type="text" id="bio" onChange={this.handleChange} />
-                          </InputGroup>
+                          <InputGroupAddon addonType="prepend">
+                            <InputGroupText>
+                              <i className="ni ni-email-83" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <Input
+                            placeholder="Bio"
+                            type="text"
+                            id="bio"
+                            onChange={this.handleChange}
+                          />
+                        </InputGroup>
                         {/* <div className="text-muted font-italic">
                           <small>
                             password strength:{" "}
@@ -204,7 +234,12 @@ class Register extends React.Component {
                           </Col>
                         </Row>
                         <div className="text-center">
-                        <Button className="mt-4" color="primary" type="submit" onClick={this.handleSubmit}>
+                          <Button
+                            className="mt-4"
+                            color="primary"
+                            type="submit"
+                            onClick={this.handleSubmit}
+                          >
                             Create account
                           </Button>
                         </div>

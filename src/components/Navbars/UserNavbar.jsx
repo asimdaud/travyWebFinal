@@ -11,6 +11,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
   // Media,
+  Badge,
   NavbarBrand,
   Navbar,
   NavItem,
@@ -29,11 +30,15 @@ import {
   InputGroupAddon,
   InputGroupText,
   FormGroup,
-  Label
+  Label,
+  Modal,
+  Button,
 } from "reactstrap";
 // import firebase from "firebase/app";
-import { firebase } from "../../services/firebase";
+// import { firebase } from "../../services/firebase";
+import * as firebase from "firebase";
 import { logOutUser } from "../../services/authServices";
+import Friendreq from "../../views/examples/FriendReq";
 
 // import classnames from "classnames";
 // import { Route, Redirect } from "react-router-dom";
@@ -46,7 +51,8 @@ class UserNavbar extends React.Component {
     profilePic:
       "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg",
     foundUser: "",
-    found: false
+    found: false,
+    reqNotify: false,
   };
 
   // let citiesRef = db.collection('cities');
@@ -65,15 +71,28 @@ class UserNavbar extends React.Component {
   //     console.log('Error getting documents', err);
   //   });
 
+  // checkReqNotification = () => {
+  //   firebase
+  //     .firestore()
+  //     .collection("users")
+  //     .doc(this.state.user3)
+  //     .collection("received")
+  //     .limit(1)
+  //     .get()
+  //     .then((querySnapshot) => {
+  //       if (querySnapshot.length > 0) this.setState({ reqNotify: true });
+  //     });
+  // };
+
   searchUser(word) {
     let userCollectionRef = firebase.firestore().collection("users");
-console.log(word)
+    console.log(word);
     let users = [];
     userCollectionRef
       .where("username", "==", word)
       .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot) => {
           users.push(documentSnapshot.data());
           //   console.log(documentSnapshot.id);
           this.setState({ foundUser: documentSnapshot.id, found: true });
@@ -89,18 +108,15 @@ console.log(word)
               "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg",
             searchResults: [],
             foundUser: "",
-            found: false
+            found: false,
           });
-          console.log(this.state.found)
+          console.log(this.state.found);
         } else {
           let profilePic = firebase
-          .storage()
-          .ref()
-          .child(
-            "profilePics/(" + this.state.foundUser + ")ProfilePic"
-          );
-          profilePic.getDownloadURL()
-          .then(url => {
+            .storage()
+            .ref()
+            .child("profilePics/(" + this.state.foundUser + ")ProfilePic");
+          profilePic.getDownloadURL().then((url) => {
             this.setState({ profilePic: url });
           });
           this.setState({ searchResults: users });
@@ -117,7 +133,7 @@ console.log(word)
 
     // if (!item.avatar) return null;
     return (
-      <Link to="/friendspage">
+      <Link to="/friend">
         <img
           // className="rounded-circle"
           className="avatar"
@@ -135,7 +151,7 @@ console.log(word)
 
   //   // if (!item.avatar) return null;
   //   return (
-  //     <Link to="/friendspage">
+  //     <Link to="/friend">
   //       <img
   //         className="rounded-circle"
   //         width="45"
@@ -165,35 +181,30 @@ console.log(word)
   //       }
   //     });
   // };
-  // onHover=()=>{
-  //   // localStorage.setItem("Fuid", JSON.stringify(this.state.userId));
-  // }
+  onHover = () => {
+    localStorage.setItem("Fuid", JSON.stringify(this.state.foundUser));
+  };
 
   renderUserItem = () => {
-
     // const { item } = this.props;
     if (this.state.found) {
       return (
-        <div 
-        // onMouseOver={this.onHover}
-        >
-         
- {this.renderAvatar()}
-         
-              {/* {this.state.searchWord} */}
-            
+        <div onMouseOver={() => this.onHover()} href="javascript:;">
+          {this.renderAvatar()}
 
-        
+          {/* {this.state.searchWord} */}
         </div>
       );
-    }
-    else return null;
+    } else return null;
   };
 
+  toggleModal = (state) => {
+    this.setState({
+      [state]: !this.state[state],
+    });
+  };
 
-
-
-  textInput = word => {
+  textInput = (word) => {
     // word.preventDefault();
     this.setState({ searchWord: word });
     this.searchUser(word.target.value);
@@ -268,33 +279,26 @@ console.log(word)
   //   }
   // }
 
-  renderSearchBar=()=>{
-
+  renderSearchBar = () => {
     return (
       <InputGroup className="input-group-alternative">
-      <InputGroupAddon addonType="prepend">
-        <InputGroupText>
-          <i className="ni ni-zoom-split-in" />
-        </InputGroupText>
-      </InputGroupAddon>
-      <input
-        // className="form-control-alternative"
-        placeholder="Search"
-        type="text"
-        // onChange={this.textInput}
-        // value={this.state.searchWord}
-        onChange={word => this.textInput(word)}
-        // value={this.state.searchWord}
-      />
-    </InputGroup>
-    
+        <InputGroupAddon addonType="prepend">
+          <InputGroupText>
+            <i className="ni ni-zoom-split-in" />
+          </InputGroupText>
+        </InputGroupAddon>
+        <input
+          className="form-control-alternative"
+          placeholder="Search"
+          type="text"
+          // onChange={this.textInput}
+          // value={this.state.searchWord}
+          onChange={(word) => this.textInput(word)}
+          // value={this.state.searchWord}
+        />
+      </InputGroup>
     );
-  }
-
-
- 
-
-
+  };
 
   logOut() {
     logOutUser();
@@ -304,6 +308,7 @@ console.log(word)
     let headroom = new Headroom(document.getElementById("navbar-main"));
     // initialise
     headroom.init();
+    // this.checkReqNotification();
     this.renderUserItem();
     this.renderSearchBar();
   }
@@ -317,7 +322,7 @@ console.log(word)
             id="navbar-main"
           >
             <Container>
-              <NavbarBrand className="mr-lg-5" to="/timeline" tag={Link}>
+              <NavbarBrand className="mr-lg-5" to="/home" tag={Link}>
                 <img alt="..." src={require("assets/img/brand/logo.png")} />
               </NavbarBrand>
               <button className="navbar-toggler" id="navbar_global">
@@ -327,7 +332,7 @@ console.log(word)
                 <div className="navbar-collapse-header">
                   <Row>
                     <Col className="collapse-brand" xs="6">
-                      <Link to="/">
+                      <Link to="/home">
                         <img
                           alt="..."
                           src={require("assets/img/brand/logo.png")}
@@ -345,9 +350,9 @@ console.log(word)
 
                 <Nav className="navbar-nav-hover align-items-lg-center" navbar>
                   {/* <form> */}
-                   {this.renderSearchBar()}
-                   {this.renderUserItem()}
-                    {/* {this.renderDropdown()} */}
+                  {this.renderSearchBar()}
+                  {this.renderUserItem()}
+                  {/* {this.renderDropdown()} */}
                   {/* </form> */}
                 </Nav>
 
@@ -366,19 +371,107 @@ console.log(word)
                   className="navbar-nav-hover align-items-lg-center ml-lg-auto"
                   navbar
                 >
-                  <NavItem className="nav-link-icon">
-                    <NavLink to="/timeline" tag={Link}>
+                  <NavItem>
+                    <NavLink
+                      className="nav-link-icon"
+                      to="/home"
+                      tag={Link}
+                      // href="#pablo"
+                      // onClick={(e) => e.preventDefault()}
+                    >
                       <i className="ni ni-world" />
-                      <span className="nav-link-inner--text">Timeline</span>
+                      <span className="nav-link-inner--text description">
+                        Timeline
+                      </span>
                     </NavLink>
                   </NavItem>
 
-                  <NavItem className="nav-link-icon">
-                    <NavLink to="/profile" tag={Link}>
+                  <NavItem>
+                    <NavLink
+                      className="nav-link-icon"
+                      to="/profile"
+                      tag={Link}
+                      // href="#pablo"
+                      // onClick={(e) => e.preventDefault()}
+                    >
                       <i className="ni ni-circle-08" />
-                      <span className="nav-link-inner--text">Profile</span>
+                      <span className="nav-link-inner--text description">
+                        Profile
+                      </span>
                     </NavLink>
                   </NavItem>
+
+                  <NavItem>
+                    <NavLink className="nav-link-icon" to="/group" tag={Link}>
+                      <i className="ni ni-planet" />
+                      <span className="nav-link-inner--text description">
+                        Groups
+                      </span>
+                    </NavLink>
+                  </NavItem>
+
+                  {/* <NavItem>
+                    <NavLink
+                      className="nav-link-icon"
+                      // href="#pablo"
+                      // onClick={(e) => e.preventDefault()}
+                    >
+                      <i className="ni ni-favourite-28" />
+                    </NavLink>
+                  </NavItem> */}
+                  {/* {this.state.reqNotify ? (
+                   
+                  ) : (
+                    ""
+                  )} */}
+
+                  <NavItem className="nav-link-icon">
+                    <NavLink
+                      // style={{ color: "red" }}
+                      className="nav-link-icon"
+                      onClick={() => this.toggleModal("notificationModal")}
+                    >
+                      <i className="ni ni-bell-55" />
+
+                      {/* <span className="nav-link-inner--text description">
+                        {" "}
+                        Friend Requests
+                      </span> */}
+
+                      <Modal
+                        className="modal-dialog-centered modal-danger"
+                        contentClassName="bg-gradient-danger"
+                        isOpen={this.state.notificationModal}
+                        toggle={() => this.toggleModal("notificationModal")}
+                        size="lg"
+                      >
+                        <div className="modal-header"></div>
+                        <Friendreq />
+                        <div className="modal-footer">
+                          <Button
+                            className="text-white ml-auto"
+                            color="link"
+                            data-dismiss="modal"
+                            type="button"
+                            onClick={() =>
+                              this.toggleModal("notificationModal")
+                            }
+                          >
+                            Close
+                          </Button>
+                        </div>
+                      </Modal>
+                      {/* </Col> */}
+                    </NavLink>
+                  </NavItem>
+                  {/* <NavItem>
+                    <NavLink className="nav-link-icon" to="/heatmap" tag={Link}>
+                      <i className="ni ni-pin-3" />
+                      <span className="nav-link-inner--text description">
+                        Heatmaps
+                      </span>
+                    </NavLink>
+                  </NavItem> */}
 
                   <UncontrolledDropdown nav>
                     <DropdownToggle nav className="nav-link-icon">
@@ -391,17 +484,17 @@ console.log(word)
                       aria-labelledby="navbar-success_dropdown_1"
                       right
                     >
-                      <DropdownItem
-                        to="/loc"
+                      {/* <DropdownItem
+                        to="/group"
                         tag={Link}
                         // onClick={this.logOut}
                       >
-                        <i className="ni ni-fat-remove" />
-                        Location
-                      </DropdownItem>
+                        <i className="ni ni-planet" />
+                        Groups
+                      </DropdownItem> */}
 
                       <DropdownItem to="/edit-profile" tag={Link}>
-                        <i className="ni ni-scissors" />
+                        <i className="ni ni-settings" />
                         Edit Profile
                       </DropdownItem>
 
@@ -410,7 +503,7 @@ console.log(word)
                         tag={Link}
                         onClick={this.logOut}
                       >
-                        <i className="ni ni-fat-remove" />
+                        <i className="ni ni-button-power" />
                         Log Out
                       </DropdownItem>
 

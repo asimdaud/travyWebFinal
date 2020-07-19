@@ -69,7 +69,7 @@ textarea[resize="horizontal"] {
 .has-danger {
     position: relative;
 
-    &:after, {
+    &:after{
         width: 19px;
         height: 19px;
         line-height: 19px;
@@ -93,7 +93,7 @@ textarea[resize="horizontal"] {
         background-color: $form-feedback-valid-bg;
     }
     .form-control {
-        background-color: $input-focus-bg;
+        background-color: black;
 
         &:focus {
             border-color: $input-focus-border-color;
@@ -101,13 +101,13 @@ textarea[resize="horizontal"] {
 
         // Placeholder
         &::placeholder {
-            color: $form-feedback-valid-color;
+            color: red;
         }
     }
 
     &.focused {
         &:after {
-            //opacity: 0;
+            opacity: 0;
         }
     }
 }
@@ -127,13 +127,13 @@ textarea[resize="horizontal"] {
 
         // Placeholder
         &::placeholder {
-            color: $form-feedback-invalid-color;
+            color: red;
         }
     }
 
     &.focused {
         &:after {
-            //opacity: 0;
+            opacity: 0;
         }
     }
 }

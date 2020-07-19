@@ -9,9 +9,7 @@ import {
   Marker,
   TrafficLayer,
   Circle,
-
-  InfoWindow
-
+  InfoWindow,
 } from "react-google-maps";
 
 // import Geosuggest from "react-geosuggest";
@@ -24,15 +22,15 @@ import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 import UserNavbar from "components/Navbars/UserNavbar.jsx";
 import HeatmapLayer from "react-google-maps/lib/components/visualization/HeatmapLayer";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
+
 import MarkerWithLabel from "react-google-maps/lib/components/addons/MarkerWithLabel";
 import { firebase } from "../../services/firebase";
 import Timeline from "../examples/Timeline";
 import { Redirect, Link } from "react-router-dom";
 import Autocomplete from "react-google-autocomplete";
 import Geocode from "react-geocode";
-Geocode.setApiKey("AIzaSyC3jftuRYj7vJ5cB-HGvzq6fC60WXOCtoM");
+Geocode.setApiKey("AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A");
 Geocode.enableDebug();
-
 
 const userId = JSON.parse(localStorage.getItem("uid"));
 // const that = this.setTimeout(() => that.setState({ overlay: false }), 1500)
@@ -40,17 +38,14 @@ const userId = JSON.parse(localStorage.getItem("uid"));
 class location extends React.Component {
   firestoreUsersRef = firebase.firestore().collection("users");
   firestorePostRef = firebase.firestore().collection("posts");
-  firestoreFollowingRef = firebase
-    .firestore()
-    .collection("following")
-    .doc(userId)
-    .collection("userFollowing");
+  // firestoreFollowingRef = firebase.firestore().collection("following").doc(this.state.user).collection("userFollowing");
 
   state = {
     posts: [],
     followedUsers: [],
     user: JSON.parse(localStorage.getItem("uid")),
     userData: {},
+    currentUserData: {},
     avatar: "",
     heatMapData: [],
     marks: [],
@@ -64,25 +59,23 @@ class location extends React.Component {
     modalItem: "",
     // address: "",
     // city: "",
+    loading: true,
     // area: "",
     // state: "",
     showMyLoc: false,
 
-
-
-
     address: "",
-      city: "",
-      area: "",
-      state: "",
-      mapPosition: {
-        lat: 33.738045,
-        lng: 73.084488 ,
-      },
-      markerPosition: {
-        lat: 33.738045,
-        lng: 73.084488 ,
-      },
+    city: "",
+    area: "",
+    state: "",
+    mapPosition: {
+      lat: 33.738045,
+      lng: 73.084488,
+    },
+    markerPosition: {
+      lat: 33.738045,
+      lng: 73.084488,
+    },
     // mapPosition: {
     //  lat: this.props.center.lat,
     //  lng: this.props.center.lng
@@ -103,56 +96,57 @@ class location extends React.Component {
   //   });
   // };
 
-  componentWillMount = () => {
-    this.getFollowingPosts().then(() => {
-      this.getHeatMapData();
-      this.getUserLocation();
-
-      // this.onClick();
-    });
-  };
+  componentWillMount = () => {};
 
   /**
    * Get the current address from the default map position and set those values in the state
    */
   componentDidMount() {
-    Geocode.fromLatLng(
-      this.state.mapPosition.lat,
-      this.state.mapPosition.lng
-    ).then(
-      (response) => {
-        const address = response.results[0].formatted_address,
-          addressArray = response.results[0].address_components;
- 
+    this.getFollowingPosts().then(() => {
+      this.getHeatMapData();
+      this.getUserLastSeen();
 
-        this.setState({
-          address: address ? address : ""    });
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
+      // this.onClick();
+    });
+
+    // Geocode.fromLatLng(
+    //   this.state.mapPosition.lat,
+    //   this.state.mapPosition.lng
+    // ).then(
+    //   (response) => {
+    //     const address = response.results[0].formatted_address,
+    //       addressArray = response.results[0].address_components;
+
+    //     this.setState({
+    //       address: address ? address : "",
+    //     });
+    //   },
+    //   (error) => {
+    //     console.error(error);
+    //   }
+    // );
+    // console.log("5");
   }
 
-// /**
-//    * Component should only update ( meaning re-render ), when the user selects the address, or drags the pin
-//    *
-//    * @param nextProps
-//    * @param nextState
-//    * @return {boolean}
-//    */
-//   shouldComponentUpdate(nextProps, nextState) {
-//     if (
-//       this.state.markerPosition.lat !== this.props.center.lat ||
-//       this.state.address !== nextState.address
-//     ) {
-//       return true;
-//     } else if (this.props.center.lat === nextProps.center.lat) {
-//       return false;
-//     }
-//   };
+  // /**
+  //    * Component should only update ( meaning re-render ), when the user selects the address, or drags the pin
+  //    *
+  //    * @param nextProps
+  //    * @param nextState
+  //    * @return {boolean}
+  //    */
+  //   shouldComponentUpdate(nextProps, nextState) {
+  //     if (
+  //       this.state.markerPosition.lat !== this.props.center.lat ||
+  //       this.state.address !== nextState.address
+  //     ) {
+  //       return true;
+  //     } else if (this.props.center.lat === nextProps.center.lat) {
+  //       return false;
+  //     }
+  //   };
   /**
-  * This Event triggers when the marker window is closed
+   * This Event triggers when the marker window is closed
    *
    * @param event
    */
@@ -161,63 +155,75 @@ class location extends React.Component {
    * When the user types an address in the search box
    * @param place
    */
-  onPlaceSelected = (place) => {
-    const address = place.formatted_address,
-      addressArray = place.address_components,
-      latValue = place.geometry.location.lat(),
-      lngValue = place.geometry.location.lng();
-    // Set these values in the state.
-    this.setState({
-      address: address ? address : "",
-      markerPosition: {
-        lat: latValue,
-        lng: lngValue,
-      },
-      mapPosition: {
-        lat: latValue,
-        lng: lngValue,
-      },
-    });
-  };
+  // onPlaceSelected = (place) => {
+  //   const address = place.formatted_address,
+  //     addressArray = place.address_components,
+  //     latValue = place.geometry.location.lat(),
+  //     lngValue = place.geometry.location.lng();
+  //   // Set these values in the state.
+  //   this.setState({
+  //     address: address ? address : "",
+  //     markerPosition: {
+  //       lat: latValue,
+  //       lng: lngValue,
+  //     },
+  //     mapPosition: {
+  //       lat: latValue,
+  //       lng: lngValue,
+  //     },
+  //   });
+  // };
 
-
+  // Get all the users the current user3 is following
+  // getFollowedUsers = async () => {
+  //   let users = [];
+  //   await this.firestoreUsersRef
+  //     .doc(this.state.user3)
+  //     .collection("following")
+  //     .get()
+  //     .then((querySnapshot) => {
+  //       querySnapshot.forEach((docSnap) => {
+  //         users.push(docSnap.id);
+  //       });
+  //       // this.setState({followedUsers: users});
+  //     });
+  //   this.setState({ followedUsers: users });
+  //   // console.log(this.state.followedUsers);
+  // };
 
   // Get all the users the current user3 is following
   getFollowedUsers = async () => {
     let users = [];
-    await this.firestoreFollowingRef.get().then((querySnapshot) => {
-      querySnapshot.forEach((docSnap) => {
-        users.push(docSnap.id);
+    await this.firestoreUsersRef
+      .doc(this.state.user)
+      .collection("following")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((docSnap) => {
+          users.push(docSnap.id);
+        });
+        // this.setState({followedUsers: users});
       });
-      // this.setState({followedUsers: users});
-    });
     this.setState({ followedUsers: users });
     // console.log(this.state.followedUsers);
   };
 
 
   getFollowingPosts = async () => {
-    // 1. Get all the users the current user3 is following
     await this.getFollowedUsers().then(async () => {
-      // console.log(this.state.followedUsers);
-
+      
       let users = this.state.followedUsers;
       let allPosts = [];
-
-      // 2. Get posts of each user3 seperately and putting them in one array.
-      //  users.forEach(async (user3) => {
-      for (const user of users) {
-        await this.getProfilePic(user).then(async () => {
-          console.log("Avatar:" + this.state.avatar);
+for (const eachUser of users) {
+        await this.getProfilePic(eachUser).then(async () => {
+          // console.log("Avatar:" + this.state.avatar);
           await this.firestoreUsersRef
-            .doc(user)
+            .doc(eachUser)
             .get()
             .then(async (document) => {
               this.setState({ userData: document.data() });
-
-              console.log(document.data());
-              await this.firestorePostRef
-                .doc(user)
+await this.firestorePostRef
+                .doc(eachUser)
                 .collection("userPosts")
                 .orderBy("time", "desc")
                 .get()
@@ -225,28 +231,28 @@ class location extends React.Component {
                   snapshot.forEach((doc) => {
                     let article = {
                       username: this.state.userData.username,
-                      userId: user,
+                      userId: eachUser,
                       title: "post",
                       avatar: this.state.avatar,
                       image: doc.data().image,
                       cta: "cta",
                       caption: doc.data().caption,
                       location: doc.data().location.coordinates,
+                      locName: doc.data().location.locationName,
                       postId: doc.data().postId,
                       timeStamp: doc.data().time,
-                      // likes:0,
-                      // horizontal: true
+                   
+                      locLatLng: "Address",
                     };
                     allPosts.push(article);
                   });
                 });
-
               this.setState({ posts: allPosts });
             });
-        });
-      }
+        });      }
     });
   };
+
 
   getProfilePic = async (user) => {
     const firebaseProfilePic = await firebase
@@ -277,22 +283,68 @@ class location extends React.Component {
       });
   };
 
-  getUserLocation = () => {
-    let lastSeen = "";
-    let latitude = 0;
-    let longitude = 0;
-
-    lastSeen = this.state.userData.location.lastSeen;
-    latitude = this.state.userData.location.latitude;
-    longitude = this.state.userData.location.longitude;
-
+  getUserLastSeen = () => {
     this.setState({
-      userLastSeen: lastSeen,
-      userLatitude: latitude,
-      userLongitude: longitude,
+      loading: true,
     });
+    firebase
+      .storage()
+      .ref()
+      .child("profilePics/(" + this.state.user + ")ProfilePic")
+      .getDownloadURL()
+      .then((url) => {
+        this.setState({ userAvatar: url });
+        // console.log(this.state.userAvatar);
 
-    console.log(lastSeen);
+        return url;
+      })
+      .catch((error) => {
+        // Handle any errors
+        switch (error.code) {
+          case "storage/object-not-found":
+            // File doesn't exist
+            this.setState({
+              userAvatar:
+                "https://clinicforspecialchildren.org/wp-content/uploads/2016/08/avatar-placeholder.gif",
+            });
+            return "https://clinicforspecialchildren.org/wp-content/uploads/2016/08/avatar-placeholder.gif";
+        }
+        alert(error);
+      });
+
+    this.firestoreUsersRef
+      .doc(this.state.user)
+      .get()
+      .then((document) => {
+        this.setState({ currentUserData: document.data() });
+        // console.log(document.data());
+        // console.log(document);
+        // console.log(this.state.currentUserData);
+        if (this.state.currentUserData.location) {
+          let lSeen = "";
+          let latitude = 0;
+          let longitude = 0;
+
+          // lSeen = document.data().location.lastSeen;
+          // latitude = document.data().location.latitude;
+          // longitude = document.data().location.longitude;
+
+          lSeen = this.state.currentUserData.location.lastSeen;
+          latitude = this.state.currentUserData.location.latitude;
+          longitude = this.state.currentUserData.location.longitude;
+
+          this.setState({
+            userLastSeen: lSeen,
+            userLatitude: latitude,
+            userLongitude: longitude,
+          });
+
+          this.setState({
+            loading: false,
+          });
+        }
+      });
+    // console.log(lastSeen);
   };
 
   markerImage = () => {
@@ -300,6 +352,7 @@ class location extends React.Component {
     // this.setState({ markerImage: mImage});
 
     this.getProfilePic(this.state.user);
+    // console.log("2");
   };
 
   showMyLoc = () => {
@@ -320,11 +373,12 @@ class location extends React.Component {
       postTag.push(post.postId);
     });
     this.setState({ heatMapData: data, postId: postTag });
-    console.log(this.state.heatMapData);
-    console.log("oioioioio");
-    // console.log(this.state.userData.location.lastSeen);
-    console.log(data);
-    console.log(this.state.postId);
+    // console.log(this.state.heatMapData);
+    // console.log("oioioioio");
+    // // console.log(this.state.userData.location.lastSeen);
+    // console.log(data);
+    // console.log(this.state.postId);
+    // console.log("1");
   };
 
   toggleModal = (state) => {
@@ -333,123 +387,26 @@ class location extends React.Component {
     });
   };
 
+
+
   render() {
-    const { marks } = this.state;
-    // let postmodal = false;
-    // let postmodalval = 0;
-
-    // const mapOptions = {
-    //   styles: [
-    //     {
-    //       featureType: "all",
-    //       elementType: "all",
-    //       stylers: [
-    //         { invert_lightness: true },
-    //         { saturation: "-9" },
-    //         { lightness: "0" },
-    //         { visibility: "simplified" },
-    //       ],
-    //     },
-    //     {
-    //       featureType: "landscape.man_made",
-    //       elementType: "all",
-    //       stylers: [{ weight: "1.00" }],
-    //     },
-    //     {
-    //       featureType: "road.highway",
-    //       elementType: "all",
-    //       stylers: [{ weight: "0.49" }],
-    //     },
-    //     {
-    //       featureType: "road.highway",
-    //       elementType: "labels",
-    //       stylers: [
-    //         { visibility: "on" },
-    //         { weight: "0.01" },
-    //         { lightness: "-7" },
-    //         { saturation: "-35" },
-    //       ],
-    //     },
-    //     {
-    //       featureType: "road.highway",
-    //       elementType: "labels.text",
-    //       stylers: [{ visibility: "on" }],
-    //     },
-    //     {
-    //       featureType: "road.highway",
-    //       elementType: "labels.text.stroke",
-    //       stylers: [{ visibility: "off" }],
-    //     },
-    //     {
-    //       featureType: "road.highway",
-    //       elementType: "labels.icon",
-    //       stylers: [{ visibility: "on" }],
-    //     },
-    //   ],
-    // };
-
+    const { loading, marks } = this.state;
     const MapWrapper = withScriptjs(
       withGoogleMap((props) => (
         <GoogleMap
-          // styles={{
-          //   elementType: "geometry",
-          //   stylers: [
-          //     {
-          //       featureType: "all",
-          //       elementType: "all",
-          //       stylers: [
-          //         { invert_lightness: true },
-          //         { saturation: "-9" },
-          //         { lightness: "0" },
-          //         { visibility: "simplified" },
-          //       ],
-          //     },
-          //     {
-          //       featureType: "landscape.man_made",
-          //       elementType: "all",
-          //       stylers: [{ weight: "1.00" }],
-          //     },
-          //     {
-          //       featureType: "road.highway",
-          //       elementType: "all",
-          //       stylers: [{ weight: "0.49" }],
-          //     },
-          //     {
-          //       featureType: "road.highway",
-          //       elementType: "labels",
-          //       stylers: [
-          //         { visibility: "on" },
-          //         { weight: "0.01" },
-          //         { lightness: "-7" },
-          //         { saturation: "-35" },
-          //       ],
-          //     },
-          //     {
-          //       featureType: "road.highway",
-          //       elementType: "labels.text",
-          //       stylers: [{ visibility: "on" }],
-          //     },
-          //     {
-          //       featureType: "road.highway",
-          //       elementType: "labels.text.stroke",
-          //       stylers: [{ visibility: "off" }],
-          //     },
-          //     {
-          //       featureType: "road.highway",
-          //       elementType: "labels.icon",
-          //       stylers: [{ visibility: "on" }],
-          //     },
-          //   ],
-          // }}
+          defaultZoom={10}
           
-          defaultZoom={8}
+
+          // panTo={{
+          //   lat: this.state.markerPosition.lat,
+          //     lng: this.state.markerPosition.lng,
+          // }}
           // defaultCenter={{ lat: 33.738045, lng: 73.084488 }}
           defaultCenter={{
             lat: this.state.mapPosition.lat,
             lng: this.state.mapPosition.lng,
           }}
           getClickableIcons={true}
-          // options={mapOptions}
           defaultOptions={{
             styles: [
               {
@@ -504,6 +461,7 @@ class location extends React.Component {
             disableDoubleClickZoom: false,
             // ,mapTypeId: google.maps.MapTypeId.TERRAIN
             // ,mapTypeId: google.maps.MapTypeId.ROADMAP
+            // mapTypeId: google.maps.MapTypeId.HYBRID,
 
             // new stuff -->
             panControl: true,
@@ -523,10 +481,9 @@ class location extends React.Component {
             },
           }}
         >
-
-{/* For Auto complete Search Box */}
-<Autocomplete
-                      controlPosition={google.maps.ControlPosition.TOP}
+          {/* For Auto complete Search Box */}
+          {/* <Autocomplete
+            controlPosition={google.maps.ControlPosition.TOP}
             style={{
               boxSizing: `border-box`,
               border: `1px solid transparent`,
@@ -542,7 +499,7 @@ class location extends React.Component {
             }}
             onPlaceSelected={this.onPlaceSelected}
             types={["(regions)"]}
-          />
+          /> */}
 
           {/* <SearchBox
             // ref={props.onSearchBoxMounted}
@@ -576,24 +533,28 @@ class location extends React.Component {
             />
           </SearchBox> */}
 
-
-          
           {/*Marker*/}
-          <Marker
+          {/* <Marker
+
+            options={{
+              icon: {
+                url: require("assets/img/icons/map/navigation.png"),
+                scaledSize: { width: 40, height: 40 },
+              },
+            }}
             google={this.props.google}
-            name={"Dolores park"}
+            // name={"Dolores park"}
             draggable={true}
             onDragEnd={this.onMarkerDragEnd}
             position={{
               lat: this.state.markerPosition.lat,
               lng: this.state.markerPosition.lng,
-              
             }}
           />
-          <Marker />
+          <Marker /> */}
 
           {/* InfoWindow on top of marker */}
-          <InfoWindow
+          {/* <InfoWindow
             onClose={this.onInfoWindowClose}
             position={{
               lat: this.state.markerPosition.lat + 0.0018,
@@ -605,71 +566,56 @@ class location extends React.Component {
                 {this.state.address}
               </span>
             </div>
-          </InfoWindow>
-
-
-
-
-
+          </InfoWindow> */}
 
           {this.state.showMyLoc ? (
-
-
-
-
-
-<InfoWindow
- onClick={() => {
-  this.hideMyLoc();
-}}
-onClose={this.onInfoWindowClose}
-
-position={{ lat: props.getUserLat  + 0.0018, lng: props.getUserLong }}
->
-<div>
+            <InfoWindow
+              onClick={() => {
+                this.hideMyLoc();
+              }}
+              onClose={this.onInfoWindowClose}
+              position={{
+                lat: props.getUserLat + 0.0018,
+                lng: props.getUserLong,
+              }}
+            >
+              <div>
                 <img
                   height="50"
                   width="50"
+                  style={{
+                    // width: "200px",
+                    // height: "200px",
+                    display: "block",
+                    "object-fit": "cover",
+                  }}
                   alt="..."
                   className="avatar"
-                  src={this.state.avatar}
-                  
+                  // src={this.state.userAvatar}
+                  src={
+                    "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+                    this.state.user +
+                    ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d"
+                  }
                 />
-                <pre>
-                {props.getUserLocation}</pre>
+                <pre>{props.getUserLocation}</pre>
               </div>
-</InfoWindow>
-
-
-
-
-
-                   ) : null}
+            </InfoWindow>
+          ) : null}
 
           {props.heatMapData.map((mark, index) => (
             <Marker
               onClick={() => {
-                console.log(
-                  mark +
-                    "\n" +
-                    props.postId[index] +
-                    "\n" +
-                    props.posts[index] +
-                    // "\nmeat\n" +
-                    // props.posts.post +
-                    // "\nnope\n" +
-                    // postmodal +
-                    // "\nindex number:\n" +
-                    // postmodalval +
-                    "\n" +
-                    this.state.posts[index]
-                );
-                //  postmodal = true;
-                //  postmodalval= index;
                 this.setState({ defaultModal: true });
                 this.setState({ modalItem: this.state.posts[index] });
               }}
               position={mark}
+              options={{
+                icon: {
+                  url: require("assets/img/icons/map/marker.png"),
+                  scaledSize: { width: 40, height: 40 },
+                },
+              }}
               title="Clickable marker"
               animation="drop"
               // animation={new google.maps.Animation}
@@ -740,11 +686,19 @@ position={{ lat: props.getUserLat  + 0.0018, lng: props.getUserLong }}
             </div>
           </section>
           <section className="section mt--300">
-            <Container className="mt--200 pb-5" fluid>
-              <Jumbotron  fluid body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}>
+            <Container className="mt--200 pb-5" fluid >
+              <Card
+              
+                fluid
+                body
+                inverse
+                style={{ backgroundColor: "#333", borderColor: "#333", zoom:"60%" }}
+              >
                 <Container fluid>
                   <h1 className="display-3 text-white">Reactive Maps</h1>
-                  <p className="lead text-white">View your friend's posts on the map.</p>
+                  <p className="lead text-white">
+                    View your friend's posts on the map.
+                  </p>
                   <Button
                     outline
                     color="info"
@@ -755,37 +709,17 @@ position={{ lat: props.getUserLat  + 0.0018, lng: props.getUserLong }}
                     Show my location!
                   </Button>{" "}
                 </Container>
-              </Jumbotron>
-              <Row>
-                {/* <div className="col">
-                  <Card className="mt--3">
-                    <div>
-                      <Autocomplete
-                        style={{
-                          width: "100%",
-                          height: "40px",
-                          paddingLeft: "16px",
-                          marginTop: "2px",
-                          marginBottom: "100px"
-                        }}
-                        onPlaceSelected={this.onPlaceSelected}
-                        types={["(regions)"]}
-                      />
-                    </div>
-                  </Card>
-                </div> */}
-                <div className="col">
+              </Card>
+              <Row style={{zoom:"65%"}}>
+                <div
+                  className="col"
+                  style={{ display: loading ? "none" : "block" }}
+                >
                   <Card className="shadow border-0 shadow">
                     <MapWrapper
-                      googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3jftuRYj7vJ5cB-HGvzq6fC60WXOCtoM&libraries=visualization,places"
+                      googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A&libraries=visualization,places"
                       loadingElement={<div style={{ height: `100%` }} />}
                       heatMapData={this.state.heatMapData}
-                      // onMapClick={this.displayMarkers}
-                      // onClick={this.displayMarkers}
-                      // onMarkerClick={()=>this.onMarkClick}
-                      // marks={marks}
-                      // onChange={this.onChange()}
-                      // postModal={this.postModal}
                       markerImage={this.state.markerImage}
                       getUserLocation={this.state.userLastSeen}
                       getUserLat={this.state.userLatitude}
@@ -796,7 +730,7 @@ position={{ lat: props.getUserLat  + 0.0018, lng: props.getUserLong }}
                       postId={this.state.postId}
                       containerElement={
                         <div
-                          style={{ height: `600px` }}
+                          style={{ height: `1000px` }}
                           className="map-canvas"
                           id="map-canvas"
                         />
@@ -812,31 +746,15 @@ position={{ lat: props.getUserLat  + 0.0018, lng: props.getUserLong }}
           </section>
         </main>
 
-        <Modal fluid
+        <Modal
+          fluid
           size="lg"
           isOpen={this.state.defaultModal}
           toggle={() => this.toggleModal("defaultModal")}
         >
           {this.state.modalItem && <Post item={this.state.modalItem} />}
         </Modal>
-
-        {/* onClick={() =>{
-                                  console.log(post);
-                                  this.setState({modalItem: post})
-                                  this.setState({defaultModal:true})
-                                  }} */}
-
-        {/* {this.state.hover 
-   ? <InfoBox 
-      onClick={()=>{this.setPinAsCenter({
-                      lat: this.state.lat, 
-                      lng: this.state.lng
-              })}
-      lat={this.state.lat}
-      lng={this.state.lng}
-      facility={this.state.facility}
-  : null
-} */}
+        <SimpleFooter />
       </>
     );
   }

@@ -1,0 +1,648 @@
+import React from "react";
+import moment from "moment";
+
+// nodejs library that concatenates classes
+import classnames from "classnames";
+// reactstrap components
+import {
+  Button,
+  Card,
+  Container,
+  Row,
+  Col,
+  Modal,
+  CardBody,
+  NavItem,
+  NavLink,
+  Nav,
+  TabContent,
+  TabPane,
+  Badge,
+  UncontrolledAlert,
+} from "reactstrap";
+import SmoothImage from "react-smooth-image";
+// core components
+import SimpleFooter from "components/Footers/SimpleFooter.jsx";
+import { isUserSignedIn } from "../../services/authServices";
+import * as firebase from "firebase";
+import Post from "../../components/post";
+import { Redirect, Link } from "react-router-dom";
+import UserNavbar from "components/Navbars/UserNavbar";
+
+class Group extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      iconTabs: 1,
+      plainTabs: 1,
+      user3: JSON.parse(localStorage.getItem("uid")),
+      uid: "uid",
+      profilePic:
+        "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg",
+      username: "Username",
+      bio: "This is my bio",
+      name: "Name",
+      email: "email@default.com",
+      group: "",
+      groupId: "",
+      groupTitle: "",
+      groupType: "",
+      groupPhoto: "",
+      groupDescription: "",
+      groupCreator: [],
+      currentMember: {},
+      discussion: [],
+      loading: true,
+      followedUsers: "00",
+      following: true,
+      joining: false,
+      discussion: [],
+      myGroups: [],
+      isMember: false,
+      memberIds: [],
+      groupInfo: [],
+      members: [],
+      isCreator: false,
+    };
+  }
+
+  UNSAFE_componentWillMount = () => {
+    this.isMember();
+    this.getCurrentMember();
+  };
+
+  toggleNavs = (e, state, index) => {
+    e.preventDefault();
+    this.setState({
+      [state]: index,
+    });
+  };
+
+  toggleModal = (state) => {
+    this.setState({
+      [state]: !this.state[state],
+    });
+  };
+
+  //   componentWillMount = () => {
+  //     // this.getFollowedUsers();
+
+  //     this.getProfilePic();
+
+  //     this.getFollowedUsers();
+  //     this.getPosts();
+  //   };
+
+  componentDidMount() {
+    // this.getProfilePic();
+    this.getMembers();
+    // this.getFollowedUsers();
+    this.getPosts();
+    this.getGroupInfo();
+    document.documentElement.scrollTop = 0;
+    document.scrollingElement.scrollTop = 0;
+    this.refs.main.scrollTop = 0;
+
+    // this.getFollowedUsers();
+    // this.getPosts();
+  }
+
+  getProfilePic = () => {
+    if (isUserSignedIn) {
+      console.log(this.state.user3);
+    }
+
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(this.state.user3)
+      .onSnapshot((doc) => {
+        const res = doc.data();
+
+        if (res != null) {
+          this.setState({
+            username: res.username,
+            bio: res.bio,
+            name: res.name,
+            email: res.email,
+          });
+        }
+        console.log(res);
+      });
+    // profile pic
+    const firebaseProfilePic = firebase
+      .storage()
+      .ref()
+      .child("profilePics/(" + this.state.user3 + ")ProfilePic");
+    firebaseProfilePic
+      .getDownloadURL()
+      .then((url) => {
+        // Inserting into an State and local storage incase new device:
+        this.setState({ profilePic: url });
+      })
+      .catch((error) => {
+        // Handle any errors
+        switch (error.code) {
+          case "storage/object-not-found":
+            // File doesn't exist
+            this.setState({
+              profilePic:
+                "https://images.unsplash.com/photo-1502630859934-b3b41d18206c?w=500&h=500&fit=crop",
+            });
+            break;
+          default:
+        }
+        console.log(error);
+      });
+  };
+
+  getFollowedUsers = () => {
+    firebase
+      .firestore()
+      .collection("following")
+      .doc(this.state.user3)
+      .collection("userFollowing")
+      .onSnapshot((snapshot) => {
+        let num = snapshot.size;
+        console.log(num);
+        this.setState({ followedUsers: num });
+      });
+  };
+
+  // renderJoinButton = () => {
+  //   return (
+  //     <div
+  //       style={{
+  //         backgroundColor: "#efefef",
+  //         width: width * 0.3,
+  //         height: 35,
+  //         alignItems: "center",
+  //         borderRadius: 15,
+  //         marginLeft: 50,
+  //       }}
+  //       onPressIn={this.joinGroup}
+  //     >
+  //       <Card row style={{ marginTop: 5, left: 2 }}>
+  //         <p h5 color="grey">
+  //           Join
+  //         </p>
+
+  //       </Card>
+  //     </div>
+  //   );
+  // };
+
+  renderFollow = () => {
+    if (!this.state.isMember) {
+      return (
+        <Button
+          className="mr-4"
+          color="info"
+          size="sm"
+          // shadowless={false}
+          // onClick={this.joinGroup}
+          onClick={() => this.joinGroup()}
+        >
+          + JOIN
+        </Button>
+      );
+    }
+    if (this.state.isCreator) {
+      return (
+        <Button
+          className="mr-4"
+          color="danger"
+          size="sm"
+          // shadowless={false}
+          // onClick={this.joinGroup}
+          onClick={() => this.editGroup()}
+        >
+          + Edit
+        </Button>
+      );
+    }
+  };
+
+
+
+  joinGroup = () => {
+    this.setState({ joining: true });
+    let group = this.state.group;
+    let members = this.state.members;
+    let memberIds = this.state.memberIds;
+    let currentMember = this.state.currentMember;
+
+    members.push(currentMember);
+    memberIds.push(currentMember.id);
+    console.log(members, memberIds, currentMember);
+    // console.log();
+    firebase
+      .firestore()
+      .collection("groups")
+      .doc("jLCaYoT6ZUEsQ2wAWgeK")
+      .set(
+        {
+          members: members,
+          memberIds: memberIds,
+        },
+        { merge: true }
+      )
+      .then(() => {
+        alert("Joined");
+        this.setState({ joining: false });
+      })
+      .catch((err) => alert(err));
+  };
+
+  getCurrentMember = async () => {
+    let profilePic = firebase
+      .storage()
+      .ref()
+      .child("profilePics/(" + this.state.user3 + ")ProfilePic");
+
+    await profilePic.getDownloadURL().then(async (url) => {
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.state.user3)
+        .get()
+        .then((doc) => {
+          let currentMember = {
+            id: this.state.user3,
+            name: doc.data().username,
+            avatar: url,
+            push_token: doc.data().push_token? doc.data().push_token : "",
+          };
+          this.setState({ currentMember: currentMember });
+        });
+    });
+  };
+
+  isCreator = () => {
+    if (this.state.user3 == this.state.creatorId) {
+      this.setState({ isCreator: true });
+      return;
+    }
+  };
+
+
+  isMember = () => {
+    let group = this.state.group;
+    let memberIds = [];
+    if (this.state.user3 == this.state.creatorId) {
+      this.setState({ isMember: true });
+      return;
+    } else {
+      firebase
+        .firestore()
+        .collection("groups")
+        .doc("jLCaYoT6ZUEsQ2wAWgeK")
+        .onSnapshot((doc) => {
+          this.setState({
+            memberIds: doc.data().memberIds,
+            members: doc.data().members,
+          });
+          memberIds = doc.data().memberIds;
+          if (memberIds.includes(this.state.user3)) {
+            this.setState({ isMember: true });
+          } else {
+            this.setState({ isMember: false });
+          }
+        });
+    }
+  };
+
+  getGroupInfo = () => {
+    const cloudImages = [];
+    firebase
+      .firestore()
+      .collection("groups")
+      .doc("jLCaYoT6ZUEsQ2wAWgeK")
+      .onSnapshot((doc) => {
+        const res = doc.data();
+
+        if (res != null) {
+          this.setState({
+            groupId: res.groupId,
+            groupTitle: res.groupTitle,
+            groupType: res.groupType,
+            groupPhoto: res.groupPhoto,
+            groupDescription: res.groupDescription,
+            groupCreator: res.groupCreator,
+          });
+        }
+      });
+  };
+
+  getPosts = () => {
+    const cloudImages = [];
+    firebase
+      .firestore()
+      .collection("groups")
+      // .doc(this.state.groupId)
+      .doc("TCeQwxQ2DprIpZpr431V")
+      .collection("discussion")
+      // .doc(this.state.postId)
+      .where("title", "==", "post")
+      // .orderBy("time", "desc")
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          let article = {
+            username: doc.data().username,
+            userId: doc.data().userId,
+            title: "post",
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+              doc.data().userId +
+              ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d",
+
+            image: doc.data().image,
+            // cta: "cta",
+            caption: doc.data().caption,
+            location: doc.data().location.coordinates,
+            locName: doc.data().location.locationName,
+            postId: doc.data().postId,
+            timeStamp: doc.data().time,
+            // likes:0,
+            locLatLng: "Address",
+          };
+          cloudImages.push(article);
+        });
+      });
+    this.setState({ discussion: cloudImages });
+  };
+
+  getMembers = () => {
+    const markers = [];
+    firebase
+      .firestore()
+      .collection("groups")
+      // .doc(this.state.groupId)
+      .doc("jLCaYoT6ZUEsQ2wAWgeK")
+      .onSnapshot((doc) => {
+        const res = doc.data();
+        res.members.map((element, index) => {
+          const marketObj = {};
+          marketObj.avatar = element.avatar;
+          marketObj.name = element.name;
+          marketObj.id = element.id;
+          marketObj.push_token = element.push_token;
+          
+
+          //
+          markers.push(marketObj);
+        });
+        this.setState({ members: markers });
+      });
+
+  };
+
+  render() {
+    // if (this.state.loading){
+    //   return <div>My sweet spinner</div>;
+    // }
+    return (
+      <>
+        <UserNavbar />
+        <main className="profile-page" ref="main">
+          <section className="section-profile-cover section-shaped my-0">
+            {/* Circles background */}
+            <div className="shape shape-style-1 shape-default alpha-4">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            {/* SVG separator */}
+            <div className="separator separator-bottom separator-skew">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+                version="1.1"
+                viewBox="0 0 2560 100"
+                x="0"
+                y="0"
+              >
+                <polygon
+                  className="fill-white"
+                  points="2560 0 2560 100 0 100"
+                />
+              </svg>
+            </div>
+          </section>
+          <section className="section mt--200">
+            <Container fluid>
+              <Card
+                className="card-profile shadow mt--300"
+                //   fluid body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}
+              >
+                <Row className="justify-content-center">
+                  <Col
+                    lg="12"
+                    // className="card-profile-image"
+                  >
+                    <a href="#pablo" onClick={(e) => e.preventDefault()}>
+                      <img
+                        alt="..."
+                        className="rounded img-responsive"
+                        style={{
+                          width: "100%",
+                          height: "400px",
+                          display: "block",
+                          objectFit: "cover",
+                        }}
+                        // src={"https://c.wallhere.com/photos/f5/52/berge_dawn_morning_mountains_natur_orte_sunrise_valais-839538.jpg!d"                        }
+                        src={this.state.groupPhoto}
+                        fluid
+                      />
+                    </a>
+                  </Col>
+                </Row>
+                <div className="px-3">
+                  <Row
+                  //   className="justify-content-center"
+                  >
+                    <Col className="order-lg-1" lg="10">
+                      <div
+                      //   className="text-center mt-5"
+                      >
+                        <h1>
+                          {this.state.groupTitle}
+                          {/* <span className="font-weight-light">, 27</span> */}
+                        </h1>
+                        <div
+                        // className="h6 font-weight-300"
+                        >
+                          <i className="ni education_hat mr-2" />
+                          {/* Group's description. Including the discussions, images
+                          and news. */}
+                          {this.state.groupDescription}
+                        </div>
+
+                        <div className="h6 mt-4">
+                          <i className="ni business_briefcase-24 mr-2" />
+                          <span className="description lead text-black text-italic">
+                            {this.state.memberIds.length} Group members
+                          </span>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col
+                      className="order-lg-2 text-lg-right align-self-lg-center"
+                      lg="2"
+                    >
+                      <div className="card-profile-actions py-4 mt-lg-0">
+                        {this.renderFollow()}
+                      </div>
+                    </Col>
+                  </Row>
+                  <div className="mt-5 py-5 border-top">
+                    <Row className="justify-content-center">
+                      <Col lg="12">
+                        <div className="nav-wrapper">
+                          <Nav
+                            className="nav-fill flex-column flex-md-row"
+                            id="tabs-icons-text"
+                            pills
+                            role="tablist"
+                          >
+                            <NavItem>
+                              <NavLink
+                                aria-selected={this.state.iconTabs === 1}
+                                className={classnames("mb-sm-3 mb-md-0", {
+                                  active: this.state.iconTabs === 1,
+                                })}
+                                onClick={(e) =>
+                                  this.toggleNavs(e, "iconTabs", 1)
+                                }
+                                href="#pablo"
+                                role="tab"
+                              >
+                                <i className="ni ni-cloud-upload-96 mr-2" />
+                                About
+                              </NavLink>
+                            </NavItem>
+                            <NavItem>
+                              <NavLink
+                                aria-selected={this.state.iconTabs === 2}
+                                className={classnames("mb-sm-3 mb-md-0", {
+                                  active: this.state.iconTabs === 2,
+                                })}
+                                onClick={(e) =>
+                                  this.toggleNavs(e, "iconTabs", 2)
+                                }
+                                href="#pablo"
+                                role="tab"
+                              >
+                                <i className="ni ni-bell-55 mr-2" />
+                                Discussion
+                              </NavLink>
+                            </NavItem>
+                            <NavItem>
+                              <NavLink
+                                aria-selected={this.state.iconTabs === 3}
+                                className={classnames("mb-sm-3 mb-md-0", {
+                                  active: this.state.iconTabs === 3,
+                                })}
+                                onClick={(e) =>
+                                  this.toggleNavs(e, "iconTabs", 3)
+                                }
+                                href="#pablo"
+                                role="tab"
+                              >
+                                <i className="ni ni-calendar-grid-58 mr-2" />
+                                Members
+                              </NavLink>
+                            </NavItem>
+                          </Nav>
+                        </div>
+                        <Card className="shadow">
+                          <CardBody>
+                            <TabContent
+                              activeTab={"iconTabs" + this.state.iconTabs}
+                            >
+                              <TabPane tabId="iconTabs1">
+                                <h4>About:</h4>
+                                <p className="description">
+                                  {this.state.groupDescription}
+                                </p>
+                                <h4>Type:</h4>
+                                <p>
+                                  <Badge
+                                    className="text-uppercase"
+                                    color="success"
+                                    pill
+                                  >
+                                    {this.state.groupType}{" "}
+                                  </Badge>
+                                </p>
+                                <h4>Created by:</h4>
+                                <p className="font-weight-bold font-italic">
+                                  <img
+                                    height="50"
+                                    width="50"
+                                    alt="..."
+                                    className="rounded-circle"
+                                    src={this.state.groupCreator.avatar}
+                                  />{" "}
+                                  {this.state.groupCreator.name}
+                                </p>
+                              </TabPane>
+                              <TabPane tabId="iconTabs2">
+                                <Container style={{zoom:"80%"}}>
+                                {this.state.discussion.map(
+                                  (post, postindex) => (
+                                    <Post item={post} key={postindex} />
+                                  )
+                                )}
+                                </Container>
+                              </TabPane>
+                              <TabPane tabId="iconTabs3">
+                                <h4>Admin:</h4>
+                                <p className="font-weight-bold font-italic">
+                                  <img
+                                    height="50"
+                                    width="50"
+                                    alt="..."
+                                    className="rounded-circle"
+                                    src={this.state.groupCreator.avatar}
+                                  />{" "}
+                                  {this.state.groupCreator.name}
+                                </p>
+                                <h4>Members:</h4>
+
+                                {this.state.members.map((data, index) => (
+                                  <p className="description font-italic">
+                                    <img
+                                      height="30"
+                                      width="30"
+                                      alt="..."
+                                      className="rounded-circle"
+                                      src={data.avatar}
+                                    />{" "}
+                                    {data.name}{" "}
+                                  </p>
+                                ))}
+                              </TabPane>
+                            </TabContent>
+                          </CardBody>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </div>
+                </div>
+              </Card>
+            </Container>
+          </section>
+        </main>
+        <SimpleFooter />
+      </>
+    );
+  }
+}
+
+export default Group;

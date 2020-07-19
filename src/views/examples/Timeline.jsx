@@ -1,9 +1,19 @@
+/*global google*/
+
 import React from "react";
-import { Link } from "react-router-dom";
 import Post from "../../components/post.jsx";
 import {
   // Button,
   Card,
+  CardBody,
+  CardText,
+  Alert,
+  CardTitle,
+  CardLink,
+  CardSubtitle,
+  Badge,
+  Row,
+  Button,
   // CardHeader,
   // CardBody,
   // NavItem,
@@ -13,20 +23,22 @@ import {
   // Table,
   Container,
   Jumbotron,
-  Row,
   Col,
 } from "reactstrap";
 //  import * as firebase from 'firebase';
 import { firebase } from "../../services/firebase";
+import SimpleFooter from "components/Footers/SimpleFooter.jsx";
+import { Redirect, Link } from "react-router-dom";
 // import {
 //   CardImg, CardText,  CardTitle, CardSubtitle
 // } from 'reactstrap';
 // import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 import UserNavbar from "components/Navbars/UserNavbar.jsx";
+import PlaceCard from "components/PlaceCard.jsx";
 
 const user3 = JSON.parse(localStorage.getItem("uid"));
-
-// const user3 = "niKoNaL9NeOPx7iW4jDUi5Cqyht2"
+const userId = JSON.parse(localStorage.getItem("uid"));
+// const fuid = JSON.parse(localStorage.getItem("Fuid"));
 
 class Timeline extends React.Component {
   // _isMounted = false;
@@ -34,6 +46,13 @@ class Timeline extends React.Component {
   // user3 = firebase.auth().currentUser;
   firestoreUsersRef = firebase.firestore().collection("users");
   firestorePostRef = firebase.firestore().collection("posts");
+  firestoreUserRecommendationsRef = firebase
+    .firestore()
+    .collection("userRecommendations")
+    .doc(userId)
+    .collection("recommendedUsers")
+    .doc(userId);
+
   // firestoreFollowingRef = firebase
   //   .firestore()
   //   .collection("following")
@@ -60,16 +79,34 @@ class Timeline extends React.Component {
     followedUsers: [],
     avatar: "",
     isLoading: true,
+    friendReqData: [],
+    friendReq: [],
+
+    // fuid: JSON.parse(localStorage.getItem("Fuid")),
+    alreadyFriendsCheck: false,
+    userRec: [],
+    userRecData: [],
+    userLocation: "",
+    following: false,
+    pending: false,
+    publicProfile: true,
+    loading: true,
+    //explorearoundme
+    userLat: "33.6829308",
+    userLong: "73.005094",
+    places: [],
+    currentLocation: {},
+    placeType: "tourist_attraction",
   };
 
-  componentWillMount = () => {
-    // this.getPosts();
-    user3: JSON.parse(localStorage.getItem("uid"));
+  // componentWillMount = () => {
+  // this.getPosts();
+  // user3: JSON.parse(localStorage.getItem("uid"));
 
-    this.getProfilePic();
-    this.getFollowedUsers();
-    this.getFollowingPosts();
-  };
+  // this.getProfilePic();
+  // this.getFollowedUsers();
+  // this.getFollowingPosts();
+  // };
 
   componentDidMount = () => {
     // this.getProfilePic();
@@ -80,24 +117,42 @@ class Timeline extends React.Component {
     //     this.setState({isLoading: false})
     //   }
     // });
-  
-  
     // localStorage.removeItem("Fuid");
-  
+
+    user3: JSON.parse(localStorage.getItem("uid"));
+
+    this.getUserRec();
+    this.getProfilePic();
+    this.getFollowedUsers();
+    this.getFollowingPosts();
+
+    // this.getCurrentLocation().then(() => {
+    this.getPlaces();
+    // });
   };
 
   componentWillUnmount() {
     this.getFollowedUsers();
     this.getFollowingPosts();
+    // this.getProfilePic();
+    // this.state = {
+    //   user3: JSON.parse(localStorage.getItem("uid")),
+    //   posts: [],
+    //   userData: {},
+    //   followedUsers: [],
+    //   avatar: "",
+    //   isLoading: true,
+    // };
+    // this.getProfilePic();
+    // this.getFollowedUsers();
+    // this.getFollowingPosts();
   }
   // Get all the users the current user3 is following
   getFollowedUsers = async () => {
     let users = [];
-    await firebase
-      .firestore()
-      .collection("following")
+    await this.firestoreUsersRef
       .doc(this.state.user3)
-      .collection("userFollowing")
+      .collection("following")
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((docSnap) => {
@@ -201,6 +256,52 @@ class Timeline extends React.Component {
       });
   };
 
+  noFriendsTimeline = () => {
+    if (this.state.followedUsers.length > 0) {
+      return (
+        <Col
+          sm="6"
+          md="6"
+          lg="6"
+          className="order-md-2"
+          style={{ zoom: "85%" }}
+        >
+          {/* <div className="col-md-8 mx-auto"> */}
+          {/* <div className="card"> */}
+          {/* <div className="card-header"> */}
+          {/* <h5 className="h3 mb-0">Timeline</h5> */}
+          {/* </div> */}
+          {/* <div className="container card-profile mt--300"> */}
+
+          {this.state.posts.map((post, postindex) => (
+            <Post item={post} key={postindex} />
+          ))}
+        </Col>
+      );
+    } else {
+      return (
+        <Col
+          sm="6"
+          md="6"
+          lg="6"
+          className="order-md-2"
+          style={{ zoom: "85%" }}
+        >
+          <Card className="container justify-content-center ">
+            <h3 className="display-3 lead">
+              You aren't following any users{" "}
+              <i className="fa fa-lock" aria-hidden="true"></i>
+              {/* <HttpsOutlinedIcon fontSize="small" color="lead"/> */}
+            </h3>
+            <p className="lead description">
+              Follow accounts to see their posts
+            </p>
+          </Card>
+        </Col>
+      );
+    }
+  };
+
   writeNewPost(
     user3,
     // username,
@@ -232,14 +333,168 @@ class Timeline extends React.Component {
     return firebase.database().ref().update(updates);
   }
 
+  // alreadyFriends = (fuid) => {
+  //   let bol = false;
+  //   // let userIdTBC = JSON.stringify(fuid);
+  //   this.firestoreFollowingRef
+  //     .doc(fuid)
+  //     .get()
+  //     .then((snapshot) => {
+  //       if (snapshot.exists) {
+  //         bol = true;
+  //       }
+  //     });
+
+  //   return bol;
+  // };
+
+  getUserRec = async () => {
+    let users = [];
+    await this.firestoreUserRecommendationsRef.onSnapshot((doc) => {
+      const res = doc.data();
+
+      res.users.map((data, index) => {
+        users.push(data.id);
+      });
+      this.setState({ userRec: users });
+      console.log(this.state.userRec);
+
+      this.viewUserRec();
+    });
+  };
+
+  viewUserRec = () => {
+    let userRecArray = [];
+    let avatar =
+      "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg";
+    let name;
+    let username;
+    let bio, location, interestsArr;
+    this.state.userRec.forEach((userId) => {
+      this.firestoreUsersRef
+        .doc(userId)
+        .get()
+        .then((doc) => {
+          username = doc.data().username;
+          name = doc.data().name;
+          avatar =
+            "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg";
+
+          bio = doc.data().bio;
+          location = doc.data().location;
+          interestsArr = doc.data().interestsArr;
+
+          let userRecData = {
+            userId: userId,
+            username: username,
+            name: name,
+            bio: bio,
+            location: location,
+            interestsArr: interestsArr,
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+              userId +
+              ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d",
+          };
+
+          userRecArray.push(userRecData);
+          this.setState({ userRecData: userRecArray });
+          console.log(this.state.userRecData);
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    });
+  };
+
+  onHover = (userId) => {
+    localStorage.setItem("Fuid", JSON.stringify(userId));
+  };
+
+  //explorearoundme
+  getPlacesUrl = (lat, long, radius, type) => {
+    const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?`;
+    const location = `location=${lat},${long}&radius=${radius}`;
+    const typeData = `&types=${type}`;
+
+    const api = `&key=${"AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A"}`;
+    return `${baseUrl}${location}${typeData}${api}`;
+  };
+
+  getPlaces = () => {
+    // const { userLat, userLong, placeType } = this.state;
+    // const lat = userLat;
+    // const long = userLong;
+    const markers = [];
+    // const url = this.getPlacesUrl(lat, long, 4200, placeType);
+    // console.log(url);
+    // fetch(url)
+    //   .then((res) => res.json())
+    //   .then((res) => {
+
+    // firebase
+    // .firestore()
+    // .collection("users")
+    // .doc(this.state.user3)
+
+    firebase
+      .firestore()
+      .collection("placesRecommendations")
+      .doc(this.state.user3)
+      .collection("recommendedPlaces")
+      .doc(this.state.user3)
+      // .limit(3)
+      // .limitToLast(100)
+      .onSnapshot((doc) => {
+        const res = doc.data();
+        //  console.log(res);
+        //  console.log(doc);
+        // console.log(doc.data());
+
+        res.places.slice(0, 3).map((element, index) => {
+          const marketObj = {};
+          marketObj.id = element.id;
+          marketObj.icon = element.icon;
+          marketObj.place_id = element.place_id;
+          marketObj.opening_hours = element.opening_hours;
+          // marketObj.photoURL=element.photos[0].getUrl();
+          marketObj.name = element.name;
+          marketObj.photos = element.photos;
+          marketObj.rating = element.rating;
+          marketObj.vicinity = element.vicinity;
+          marketObj.type = element.types;
+          marketObj.marker = {
+            latitude: element.geometry.location.lat,
+            longitude: element.geometry.location.lng,
+          };
+
+          markers.push(marketObj);
+
+          // if (marketObj.photos  ) {
+          //   console.log(
+          //     "ref ref ref ref: " + marketObj.photos[0].photo_reference
+          //   );
+          // }else console.log("no photototot")
+        });
+
+        this.setState({ places: markers });
+
+        // console.log(this.state.places);
+      });
+  };
+
   render() {
     return (
       <>
         <UserNavbar />
         <main className="profile-page" ref="main">
           <section className="section-profile-cover section-shaped my-0">
-            {/* Circles background */}
+            {/* Circles background   dark,light,default,primary */}
             <div className="shape shape-style-1 shape-default alpha-4">
+              <span />
+              <span />
+              <span />
+              <span />
               <span />
               <span />
               <span />
@@ -266,44 +521,282 @@ class Timeline extends React.Component {
             </div>
           </section>
           <section className="section section-blog-info mt--300">
-            <Row className="mt--200">
-              <Col sm="3" md="2" lg="1" className=".hidden-xs">
-                {/* <Card
-                  body
-                  inverse
-                  style={{ backgroundColor: "#333", borderColor: "#333" }}
+            <Row className="mt--200 d-flex justify-content-center">
+              <Col
+                sm="2"
+                md="2"
+                lg="2"
+                className="order-md-1  d-none d-lg-block"
+                style={{
+                  paddingTop: "200px",
+                  padding: "5px",
+                  paddingRight: "10px",
+                }}
+              >
+                <Card
+                  className="shadow"
+                  style={{
+                    position: "fixed",
+                    top: "175px",
+                    borderRadius: "6px",
+                  }}
                 >
-                  <a>sup</a>
-                </Card> */}
-              </Col>
-              <Col sm="6" md="8" lg="9">
-                {/* <div className="col-md-8 mx-auto"> */}
-                {/* <div className="card"> */}
-                {/* <div className="card-header"> */}
-                {/* <h5 className="h3 mb-0">Timeline</h5> */}
-                {/* </div> */}
-                {/* <div className="container card-profile mt--300"> */}
+                  <Link to="/heatmap">
+                    <div className="hovereffect">
+                      <span
+                        className="font-italic bg-secondary"
+                        style={{ color: "black", backgroundcolor: "#F7F7F7" }}
+                      >
+                        View friend's posts on Map
+                      </span>
+                      <img
+                        className="img-responsive"
+                        style={{
+                          borderRadius: "3px",
+                          width: "225px",
+                          height: "350px",
+                          display: "block",
+                          objectFit: "cover",
+                        }}
+                        src={require("assets/img/brand/1.png")}
+                        // src="https://icon2.cleanpng.com/20180614/upl/kisspng-heat-map-google-search-visualization-5b23314a2df702.3196096015290330341883.jpg"
 
-                {this.state.posts.map((post, postindex) => (
-                  <Post item={post} key={postindex} />
-                ))}
-              </Col>
+                        alt=""
+                      />
 
-              <Col sm="3" md="2" lg="2" className=".hidden-xs">
-                <Card >
-                  <Jumbotron to="/loc" tag={Link} style={{background:"transparent" }}>
-                    {/* <h1 className="display-3 text-black">View your friends' posts on Map</h1> */}
-                    <p className="lead text-black">
-                      View your friends' posts on the map
-                    </p>
-                  </Jumbotron>
+                      <div className="overlay" to="/explore" tag={Link}>
+                        <h2>View Heatmaps</h2>
+
+                        {/* <a href="#">View Heatmaps</a> */}
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* <Jumbotron
+                    to="/heatmap"
+                    tag={Link}
+                    style={{ background: "transparent" }}
+                  >
+                    <p className="lead text-black">View Heatmap</p>
+                  </Jumbotron> */}
                 </Card>
+              </Col>
+
+              {this.noFriendsTimeline()}
+
+              <Col
+                sm="4"
+                md="4"
+                lg="4"
+                className="order-md-3 d-none d-lg-block"
+                style={{
+                  paddingTop: "200px",
+                  width: "100%",
+                  // position: "sticky"
+                }}
+              >
+                <Card
+                  className="shadow"
+                  //  body
+                  //  inverse
+                  style={{
+                    //  backgroundColor: "#333", borderColor: "#333" ,
+                    position: "fixed",
+                    width: "100%",
+                    top: "175px",
+                  }}
+                >
+                  {/* <Jumbotron
+                    to="/explore"
+                    tag={Link}
+                    style={{ background: "transparent" }}
+                  >
+                    <p className="lead text-black">Explore Places</p>
+                  </Jumbotron>{" "} */}
+
+                  <div className="bg-secondary" style={{ overflow: "auto" }}>
+                    <div>
+                      <Link to="/peopleyoumayknow">
+                        <span
+                          className="font-italic"
+                          style={{ color: "black" }}
+                        >
+                          People You May Know
+                        </span>
+                      </Link>
+                    </div>
+
+                    {this.state.userRecData
+                      .slice(0, 2)
+                      .map((user, postindex) => (
+                        <div
+                          className="list-group list-group-chat list-group-flush"
+                          key={postindex}
+                          item={this.state.userRec}
+                        >
+                          <a
+                            href="javascript:;"
+                            className="list-group-item bg-gradient-white"
+                            onMouseOver={() => this.onHover(user.userId)}
+                          >
+                            <div className="media">
+                              <Link to="/friend">
+                                <img
+                                  style={{
+                                    width: "45px",
+                                    height: "45px",
+                                    display: "block",
+                                    objectFit: "cover",
+                                  }}
+                                  className="rounded"
+                                  // onMouseOver={() => this.onHover(user.userId)}
+                                  src={user.avatar}
+                                />
+                              </Link>{" "}
+                              <div className="media-body ml-2">
+                                <div className="justify-content-between align-items-center">
+                                  <h6 className="mb-0 text-black font-weight-bold">
+                                    {user.name}{" "}
+                                    <small className="text-muted">
+                                      {"     @"} {user.username}
+                                    </small>
+                                  </h6>
+                                  <div>
+                                    <small className="text-muted">
+                                      <span className="badge badge-success">
+                                        {user.interestsArr[0]}
+                                      </span>{" "}
+                                      <span className="badge badge-success">
+                                        {user.interestsArr[1]}
+                                      </span>{" "}
+                                      <span className="badge badge-success">
+                                        {user.interestsArr[2]}
+                                      </span>
+                                    </small>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                        </div>
+                      ))}
+                  </div>
+                  {/* {this.state.userRecData.map((user, postindex) => (
+                    <div
+                      style={{ padding: "5px", zoom: "85%" }}
+                      key={postindex}
+                      item={this.state.userRec}
+                    >
+                      <Card
+                        style={{
+                          backgroundColor: "#F2F2F2",
+                          borderColor: "#F2F2F2",
+                          width: "30px",
+                          height: "30px",
+                        }}
+                        classN
+                        onMouseOver={() => this.onHover(user.userId)}
+                      >
+                        <img
+                          style={{
+                            width: "320px",
+                            height: "250px",
+                            display: "block",
+                            objectFit: "cover",
+                          }}
+                          className="rounded"
+                          src={user.avatar}
+                        />
+                        {user.name}
+                      </Card>
+                    </div>
+                  ))} */}
+                </Card>
+
+                <div
+                  style={{
+                    paddingTop: "30px",
+                  }}
+                >
+                  <Card
+                    className="shadow "
+                    //  body
+                    //  inverse
+                    style={{
+                      //  backgroundColor: "#333", borderColor: "#333" ,
+                      position: "fixed",
+                      width: "100%",
+                      // top: "175px",
+                    }}
+                  >
+                    <div className="bg-secondary" style={{ overflow: "auto" }}>
+                      <Link to="/explore">
+                        <div>
+                          <span
+                            className="font-italic"
+                            style={{ color: "black" }}
+                          >
+                            Explore places
+                          </span>
+                        </div>
+                      </Link>
+                      {this.state.places.slice(0, 2).map((data, index) => (
+                        <div
+                          className="list-group list-group-chat list-group-flush"
+                          key={index}
+                          // item={this.state.userRec}
+                        >
+                          <a
+                            href="javascript:;"
+                            className="list-group-item bg-gradient-white"
+                            // onMouseOver={() => this.onHover(user.userId)}
+                          >
+                            <div className="media">
+                              <img
+                                style={{
+                                  width: "45px",
+                                  height: "45px",
+                                  display: "block",
+                                  objectFit: "cover",
+                                }}
+                                className="rounded"
+                                src={
+                                  `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=` +
+                                  data.photos[0].photo_reference +
+                                  `&key=${"AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A"}`
+                                }
+                              />{" "}
+                              <div className="media-body ml-2">
+                                <div className="justify-content-between align-items-center">
+                                  <h6 className="mb-0 text-black font-weight-bold">
+                                    {data.name}{" "}
+                                    <small className="text-muted">
+                                      {data.vicinity}
+                                    </small>
+                                  </h6>
+                                  <div>
+                                    <small className="text-muted">
+                                      <span className="badge badge-info">
+                                        {data.type[0]}
+                                      </span>
+                                    </small>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
               </Col>
             </Row>
             {/* </div> */}
             {/* </div> */}
           </section>
         </main>
+        <SimpleFooter />
       </>
     );
   }

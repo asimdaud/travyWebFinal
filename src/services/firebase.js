@@ -36,6 +36,6 @@ const auth = firebase.auth();
 // };
 
 
-export { firebase, firestore };
+export { firebase, firestore, auth };
 // export const myFirestore = firebase.firestore();
 // export const myStorage = firebase.storage();

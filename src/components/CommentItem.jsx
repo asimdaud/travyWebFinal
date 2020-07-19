@@ -14,29 +14,31 @@ import {
   DropdownItem,
   UncontrolledDropdown,
   Badge,
-  Media
+  Media,
 } from "reactstrap";
-import {DeleteOutline} from '@material-ui/icons';
+import { DeleteOutline } from "@material-ui/icons";
 
 class CommentItem extends React.Component {
   state = {
     currentUserId: JSON.parse(localStorage.getItem("uid")),
     profilePic:
       "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg",
-    commentDeleted: false
+    commentDeleted: false,
   };
-
 
   componentWillMount = () => {
-    this.getProfilePic();
-  };
-
-
-  componentDidMount = () => {
     // this.getProfilePic();
   };
 
-  getProfilePic = friendId => {
+  // componentWillUnmount=()=>{
+  //   this.getProfilePic();
+  // }
+
+  componentDidMount = () => {
+    this.getProfilePic();
+  };
+
+  getProfilePic = (friendId) => {
     const { item } = this.props;
 
     const firebaseProfilePic = firebase
@@ -45,10 +47,10 @@ class CommentItem extends React.Component {
       .child("profilePics/(" + item.commentData.userId + ")ProfilePic");
     firebaseProfilePic
       .getDownloadURL()
-      .then(url => {
+      .then((url) => {
         this.setState({ profilePic: url });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("No picture found for: " + item.commentData.userId);
       });
   };
@@ -57,46 +59,57 @@ class CommentItem extends React.Component {
     const { item } = this.props;
 
     // if (item.userId == this.state.currentUserId) {
-      await firebase
-        .firestore()
-        .collection("comments")
-        .doc(item.postId)
-        .collection("userComments")
-        .doc(item.commentData.commentId)
-        .delete()
-        .then(() => {
-          alert("Comment Deleted!");
-          this.setState({ commentDeleted: true });
-        })
-        .catch(err => {
-          alert(err);
-        });
+    await firebase
+      .firestore()
+      .collection("comments")
+      .doc(item.postId)
+      .collection("userComments")
+      .doc(item.commentData.timestamp)
+      // .doc(item.commentData.commentId)
+      .delete()
+      .then(() => {
+        console.log("Comment Deleted!");
+        this.setState({ commentDeleted: true });
+      })
+      .catch((err) => {
+        alert(err);
+      });
+
     // }
   };
   render() {
     const { item } = this.props;
-     return (
+    return (
       <div className="media-list">
         <div className="media media-comment">
           <img
             alt="Image placeholder"
             className="media-comment-avatar avatar rounded-circle"
+            style={{
+              // width: "200px",
+              // height: "200px",
+              display: "block",
+              objectFit: "cover",
+            }}
+            // src={this.state.profilePic}
+            // className="rounded-circle img-responsive"
+
             src={this.state.profilePic}
           />
           <div className="media-body">
             <div className="media-comment-text">
-              
-              <h4><Badge color="secondary">{item.commentData.username}</Badge></h4>
+              <h4>
+                <Badge color="secondary">{item.commentData.username}</Badge>
+              </h4>
               <p className="text-sm lh-160">{item.commentData.comment}</p>
             </div>
           </div>
- 
 
-{item.commentData.userId == this.state.currentUserId ? (
-  <DeleteOutline onClick={this.deleteComment} />
-                          ) : (
-""
-                          )}
+          {item.commentData.userId == this.state.currentUserId ? (
+            <DeleteOutline onClick={this.deleteComment} fontSize="small" />
+          ) : (
+            ""
+          )}
 
           {/* <UncontrolledDropdown>
             <DropdownToggle nav className="nav-link-icon">

@@ -1,3 +1,20 @@
+/*!
+
+=========================================================
+* Argon Design System React - v1.0.0 based on Argon Design System - v1.0.1
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/argon-design-system-react
+* Copyright 2019 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://github.com/creativetimofficial/argon-design-system-react/blob/master/LICENSE.md)
+
+* Coded by www.creative-tim.com
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+*/
 :root {
   --blue: #5e72e4;
   --indigo: #5603ad;
@@ -135,6 +152,8 @@ sub {
 
 sup {
   top: -.5em; }
+
+  
 
 a {
   color: #5e72e4;
@@ -1321,7 +1340,7 @@ pre {
     outline: 0;
     box-shadow: none, none; }
   .form-control::placeholder {
-    color: #adb5bd;
+    color: #022344;
     opacity: 1; }
   .form-control:disabled, .form-control[readonly] {
     background-color: #e9ecef;
@@ -2024,6 +2043,7 @@ fieldset:disabled a.btn {
     .btn-outline-success:not(:disabled):not(.disabled):active:focus, .btn-outline-success:not(:disabled):not(.disabled).active:focus,
     .show > .btn-outline-success.dropdown-toggle:focus {
       box-shadow: 0 0 0 0 rgba(45, 206, 137, 0.5); }
+
 
 .btn-outline-info {
   color: #11cdef;
@@ -4471,6 +4491,7 @@ button.close {
 .carousel-inner {
   position: relative;
   width: 100%;
+  height: 100%;
   overflow: hidden; }
 
 .carousel-item {
@@ -4840,6 +4861,7 @@ button.bg-darker:focus {
 .rounded-right {
   border-top-right-radius: 0.25rem !important;
   border-bottom-right-radius: 0.25rem !important; }
+
 
 .rounded-bottom {
   border-bottom-right-radius: 0.25rem !important;
@@ -7371,7 +7393,8 @@ main {
   display: block; }
 
 main {
-  overflow: hidden; }
+  overflow: hidden; 
+}
 
 .section-nucleo-icons .icons-container {
   position: relative;
@@ -8940,7 +8963,7 @@ label {
 .form-control {
   font-size: 0.875rem; }
   .form-control:focus::placeholder {
-    color: #adb5bd; }
+    color: #010102; }
 
 /* Textareas */
 textarea[resize="none"] {

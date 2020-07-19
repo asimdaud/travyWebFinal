@@ -19,6 +19,7 @@ import {
 } from "reactstrap";
 
 // core components
+import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 import PubNavbar from "components/Navbars/PubNavbar.jsx";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 

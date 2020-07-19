@@ -24,7 +24,8 @@ import ReactShadowScroll from "react-shadow-scroll";
 
 // import { HeatmapLayer } from '@react-google-maps/api';
 import UserNavbar from "components/Navbars/UserNavbar.jsx";
-import HeatmapLayer from "react-google-maps/lib/components/visualization/HeatmapLayer";
+// import HeatmapLayer from "react-google-maps/lib/components/visualization/HeatmapLayer";
+import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import MarkerWithLabel from "react-google-maps/lib/components/addons/MarkerWithLabel";
 import { firebase } from "../../services/firebase";
@@ -111,19 +112,24 @@ class chat extends React.Component {
     let followedUsersDataArr = [];
     let avatar =
       "https://images.unsplash.com/photo-1502630859934-b3b41d18206c?w=500&h=500&fit=crop";
-    let name;
+    let name, username;
     this.state.followedUsers.forEach((userId) => {
       //  avatar =  this.getUserPic(userId);
       firestoreUsersRef
         .doc(userId)
         .get()
         .then((doc) => {
-          name = doc.data().username;
+          name = doc.data().name;
+          username = doc.data().username;
 
           let followedUsersData = {
             userId: userId,
             name: name,
-            avatar: avatar,
+            username: username,
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+              userId +
+              ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d",
           };
 
           followedUsersDataArr.push(followedUsersData);
@@ -359,7 +365,7 @@ class chat extends React.Component {
 
       uploadTask.on(
         "state_changed",
-       // null,
+        // null,
         (snapshot) => {
           const getProgress = Math.round(
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100
@@ -418,20 +424,20 @@ class chat extends React.Component {
           // Item right (my message)
           if (item.type === 0) {
             viewListMessage.push(
-              <div class="row justify-content-end text-right">
-                <div class="col-auto">
+              <div className="row justify-content-end text-right">
+                <div className="col-auto">
                   {/* <ReactShadowScroll> */}
-                  <div class="card bg-gradient-muted text-primary">
-                    <div class="card-body p-2" key={item.timestamp}>
-                      <p class="mb-1 font-weight-bold">
+                  <div className="card bg-gradient-muted text-primary">
+                    <div className="card-body p-2" key={item.timestamp}>
+                      <p className="mb-1 font-weight-bold">
                         {item.content}
                         <br />
                       </p>
                       <div>
-                        <small class="opacity-60">
-                          {moment(Number(item.timestamp)).format("ll")}
+                        <small className="opacity-60">
+                          {moment(Number(item.timestamp)).format("lll")}
                         </small>
-                        <i class="ni ni-check-bold"></i>
+                        <i className="ni ni-check-bold"></i>
                       </div>
                     </div>
                   </div>
@@ -441,12 +447,15 @@ class chat extends React.Component {
             );
           } else if (item.type === 1) {
             viewListMessage.push(
-              <div class="row justify-content-end text-right">
-                <div class="col-auto" style={{ height: "15%", width: "20%" }}>
+              <div className="row justify-content-end text-right">
+                <div
+                  className="col-auto"
+                  style={{ height: "15%", width: "20%" }}
+                >
                   {/* <ReactShadowScroll> */}
-                  <div class="card bg-gradient-muted text-primary">
-                    <div class="card-body p-2 ml-auto" key={item.timestamp}>
-                      <p class="mb-1 font-weight-bold">
+                  <div className="card bg-gradient-muted text-primary">
+                    <div className="card-body p-2 ml-auto" key={item.timestamp}>
+                      <p className="mb-1 font-weight-bold">
                         {/* <Card className="viewItemRight2 ml-auto"  key={item.timestamp}
               style={{  height: "15%", width : "20%" }}
               > */}
@@ -459,34 +468,35 @@ class chat extends React.Component {
                         <br />
                       </p>
                       <div>
-                        <small class="opacity-60">
-                          {moment(Number(item.timestamp)).format("ll")}
+                        <small className="opacity-60">
+                          {moment(Number(item.timestamp)).format("lll")}
                         </small>
-                        <i class="ni ni-check-bold"></i>
+                        <i className="ni ni-check-bold"></i>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             );
-          } else {
-            viewListMessage.push(
-              <div className="viewItemRight3" key={item.timestamp}>
-                <img
-                  className="imgItemRight"
-                  src={this.getGifImage(item.content)}
-                  alt="content message"
-                />
-              </div>
-            );
           }
+          // else {
+          //   viewListMessage.push(
+          //     <div className="viewItemRight3" key={item.timestamp}>
+          //       <img
+          //         className="imgItemRight"
+          //         src={this.getGifImage(item.content)}
+          //         alt="content message"
+          //       />
+          //     </div>
+          //   );
+          // }
         } else {
           // Item left (peer message)
           if (item.type === 0) {
             viewListMessage.push(
-              <div class="row justify-content-start text-right">
-                <div class="col-auto">
-                  <div class="card bg-gradient-muted text-black">
+              <div className="row justify-content-start text-right">
+                <div className="col-auto">
+                  <div className="card bg-gradient-muted text-black">
                     {/* {this.isLastMessageLeft(index) ? (
                                     <img
                                         src={this.state.peerPic}
@@ -496,16 +506,16 @@ class chat extends React.Component {
                                 ) : (
                                     <div className="viewPaddingLeft"/>
                                 )} */}
-                    <div class="card-body p-2" key={item.timestamp}>
-                      <p class="mb-1 font-weight-bold">
+                    <div className="card-body p-2" key={item.timestamp}>
+                      <p className="mb-1 font-weight-bold">
                         {item.content}
                         <br />
                       </p>
                       <div>
-                        <small class="opacity-60">
-                          {moment(Number(item.timestamp)).format("ll")}
+                        <small className="opacity-60">
+                          {moment(Number(item.timestamp)).format("lll")}
                         </small>
-                        <i class="ni ni-check-bold"></i>
+                        <i className="ni ni-check-bold"></i>
                       </div>
                     </div>
                   </div>
@@ -519,61 +529,72 @@ class chat extends React.Component {
             );
           } else if (item.type === 1) {
             viewListMessage.push(
-              <div className="viewWrapItemLeft2" key={item.timestamp}>
-                <div className="viewWrapItemLeft3">
-                  {this.isLastMessageLeft(index) ? (
-                    <img
-                      src={this.state.peerPic}
-                      alt="avatar"
-                      className="peerAvatarLeft"
-                    />
-                  ) : (
-                    <div className="viewPaddingLeft" />
-                  )}
-                  <div className="viewItemLeft2">
-                    <img
-                      className="imgItemLeft"
-                      src={item.content}
-                      alt="content message"
-                    />
+              <div className="row justify-content-start text-right">
+                <div
+                  className="col-auto"
+                  style={{ height: "15%", width: "20%" }}
+                >
+                  <div className="card bg-gradient-muted text-black">
+                    {/* {this.isLastMessageLeft(index) ? (
+                                <img
+                                    src={this.state.peerPic}
+                                    alt="avatar"
+                                    className="avatar shadow left"
+                                />
+                            ) : (
+                                <div className="viewPaddingLeft"/>
+                            )} */}
+                    <div className="card-body p-2" key={item.timestamp}>
+                      <p className="mb-1 font-weight-bold">
+                        <img
+                          className="img-fluid rounded"
+                          src={item.content}
+                          alt="Image placeholder"
+                        />
+                        <br />
+                      </p>
+                      <div>
+                        <small className="opacity-60">
+                          {moment(Number(item.timestamp)).format("lll")}
+                        </small>
+                        <i className="ni ni-check-bold"></i>
+                      </div>
+                    </div>
                   </div>
+                  <br />
                 </div>
-                {this.isLastMessageLeft(index) ? (
-                  <span className="textTimeLeft">
-                    {moment(Number(item.timestamp)).format("ll")}
-                  </span>
-                ) : null}
-              </div>
-            );
-          } else {
-            viewListMessage.push(
-              <div className="viewWrapItemLeft2" key={item.timestamp}>
-                <div className="viewWrapItemLeft3">
-                  {this.isLastMessageLeft(index) ? (
-                    <img
-                      src={this.currentPeerUser.photoUrl}
-                      alt="avatar"
-                      className="peerAvatarLeft"
-                    />
-                  ) : (
-                    <div className="viewPaddingLeft" />
-                  )}
-                  <div className="viewItemLeft3" key={item.timestamp}>
-                    <img
-                      className="imgItemLeft"
-                      src={this.getGifImage(item.content)}
-                      alt="content message"
-                    />
-                  </div>
-                </div>
-                {this.isLastMessageLeft(index) ? (
-                  <span className="textTimeLeft">
-                    {moment(Number(item.timestamp)).format("ll")}
-                  </span>
-                ) : null}
               </div>
             );
           }
+          // else {
+          //   viewListMessage.push(
+          //     <div className="viewWrapItemLeft2" key={item.timestamp}>
+          //       <div className="viewWrapItemLeft3">
+          //         {this.isLastMessageLeft(index) ? (
+          //           <img
+          //             src={this.currentPeerUser.photoUrl}
+          //             alt="avatar"
+          //             className="peerAvatarLeft"
+          //           />
+          //         ) : (
+          //           <div className="viewPaddingLeft" />
+          //         )}
+          //         <div className="viewItemLeft3" key={item.timestamp}>
+          //           <img
+          //             className="imgItemLeft"
+          //             src={this.getGifImage(item.content)}
+          //             alt="content message"
+          //           />
+          //         </div>
+          //       </div>
+          //       {this.isLastMessageLeft(index) ? (
+          //         <span className="textTimeLeft">
+          //           {moment(Number(item.timestamp)).format("ll")}
+          //         </span>
+          //       ) : null}
+          //     </div>
+          //   );
+          // }
         }
       });
       return viewListMessage;
@@ -582,14 +603,14 @@ class chat extends React.Component {
         <div className="viewWrapSayHi">
           <img
             // className="imgWaveHand"
-            class="avatar"
+            className="avatar"
             src={this.state.peerPic}
             alt="wave hand"
           />
           <span className="textSayHi">Say hi to new friend</span>
           <img
             // className="imgWaveHand"
-            class="avatar"
+            className="avatar"
             src={this.state.profilePic}
           />
         </div>
@@ -659,6 +680,12 @@ class chat extends React.Component {
     }
   }
 
+
+  
+  onHover = (userId) => {
+    localStorage.setItem("Fuid", JSON.stringify(userId));
+  };
+
   clearChat = async () => {
     // await firebase
     // .firestore()
@@ -694,7 +721,7 @@ class chat extends React.Component {
           ) : null}
           <section className="section-profile-cover section-shaped my-0">
             {/* Circles background */}
-            <div className="shape shape-style-1 shape-default alpha-4">
+            <div className="shape shape-style-1 shape-dark alpha-4">
               <span />
               <span />
               <span />
@@ -722,109 +749,91 @@ class chat extends React.Component {
           </section>
 
           <section>
-            <div class="container pt-5 mb-5 upper mt--300">
-              <div class="row flex-row chat">
-                <div class="col-lg-3">
-                  <div class="card bg-secondary" style={{ overflow: "auto" }}>
-                    <form class="card-header mb-3 text-center bg-gradient-muted">
-                      {/* <div class="input-group input-group-alternative">
-            <input type="text" class="form-control" placeholder="Search contact"/>
-            <div class="input-group-append">
-              <span class="input-group-text"><i class="ni ni-zoom-split-in"></i></span>
-            </div>
-          </div> */}
+            <div
+              className="mb-5 mt--300"
+              style={{
+                zoom: "80%",
+                paddingLeft: "10px",
+                paddingRight: "10px",
+              }}
+            >
+              <div className="row flex-row chat">
+                <div className="col-lg-3">
+                  <div
+                    className="card bg-secondary"
+                    style={{ overflow: "auto" }}
+                  >
+                    <form className="card-header mb-3 text-center bg-gradient-muted">
                       <span className="text-black font-weight-bold">
-                        {this.state.followedUsers.length} Friends online
+                        {/* {this.state.followedUsers.length} Friends online */}
+                        Say Hi!
                       </span>
                     </form>
-                    {/* <div class="list-group list-group-chat list-group-flush">
-          <a href="javascript:;" class="list-group-item active bg-gradient-primary">
-            <div class="media">
-              <img alt="Image" src={this.state.peerPic} class="avatar"/>
-              <div class="media-body ml-2">
-                <div class="justify-content-between align-items-center">
-                  <h6 class="mb-0 text-white">{this.state.name  }
-                    <span class="badge badge-success"></span>
-                  </h6>
-                  <div>
-                    <small>Typing...</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-</a>
-</div> */}
-
-                    {/* <div>
-  {this.getFollowedUsers()}
-</div> */}
-
-                    {
-                      // this.state.followedUsers.map((followedUsers) => {
-                      this.state.followedUsersData.map((user) => (
-                        //  <li key={ followedUsers } item = {flist}>
-                        <div class="list-group list-group-chat list-group-flush">
-                          <a
-                            href="javascript:;"
-                            class="list-group-item bg-gradient-white"
-                          >
-                            {/* <a href="javascript:;" class="list-group-item active bg-gradient-white"> */}
-                            <div class="media">
-                              {/* <img alt="Image" src={user.avatar} class="avatar" /> */}
-                              <div class="media-body ml-2">
-                                <div class="justify-content-between align-items-center">
-                                  <h6 class="mb-0 text-black font-weight-bold">
+                    {this.state.followedUsersData.map((user) => (
+                      <div className="list-group list-group-chat list-group-flush">
+                        <a
+                          href="javascript:;"
+                          className="list-group-item bg-gradient-white"
+                          onMouseOver={() => this.onHover(user.userId)}
+                        >
+                          <div className="media">
+                            <Link to="/friend">
+                              <img
+                                alt="Image"
+                                src={user.avatar}
+                                className="avatar"
+                              />
+                            </Link>
+                            <div className="media-body ml-2">
+                              <div className="justify-content-between align-items-center">
+                                <h6 className="mb-0 text-black font-weight-bold">
+                                  {user.username}
+                                  <span className="badge badge-success"></span>
+                                </h6>
+                                <div>
+                                  <small className="text-muted">
                                     {user.name}
-                                    <span class="badge badge-success"></span>
-                                  </h6>
-                                  {/* <div>
-                                  <small class="text-muted">Typing...</small>
-                                </div> */}
+                                  </small>
                                 </div>
                               </div>
                             </div>
-                          </a>
-                        </div>
-                      ))
-                    }
-                    {/* 
-<ul>
-{
-    this.state.followedUsers.map((post, index)=>(
-        <li item = {post} key = {index}/>
-  
-    ))
-    }  
-
-</ul>
-     */}
+                          </div>
+                        </a>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                <div class="col-lg-9">
-                  <div class="card">
-                    <div class="card-header d-inline-block">
-                      <div class="row">
-                        <div class="col-md-10">
-                          <div class="media align-items-center">
+                <div className="col-lg-9">
+                  <div className="card">
+                    <div className="card-header d-inline-block">
+                      <div className="row">
+                        <div className="col-md-10">
+                          <div className="media align-items-center">
                             <img
                               alt="Image"
                               src={this.state.peerPic}
-                              class="avatar shadow"
+                              className="avatar shadow img-responsive"
+                              style={{
+                                width: "44px",
+                                height: "44px",
+                                display: "block",
+                                objectFit: "cover",
+                              }}
                             />
-                            <div class="media-body">
-                              <h6 class="mb-0 d-block">
+                            <div className="media-body">
+                              <h6 className="mb-0 d-block">
                                 {this.state.peerName}
                               </h6>
-                              <span class="text-muted text-small">
+                              <span className="text-muted text-small">
+                                {" "}
                                 {this.state.peerUserName}
                               </span>
                             </div>
                           </div>
                         </div>
-                        <div class="col-md-1 col-3"></div>
+                        <div className="col-md-1 col-3"></div>
 
-                        <div class="col-md-1 col-3">
+                        <div className="col-md-1 col-3">
                           <UncontrolledDropdown nav>
                             <DropdownToggle nav className="nav-link-icon">
                               <i className="ni ni-settings-gear-65" />
@@ -841,13 +850,20 @@ class chat extends React.Component {
                                 tag={Link}
                                 // onClick={this.logOut}
                               >
-                                <p class="dropdown-item" href="javascript:;">
-                                  <i class="ni ni-single-02"></i> Profile
+                                <p
+                                  className="dropdown-item"
+                                  href="javascript:;"
+                                >
+                                  <i className="ni ni-single-02"></i> Profile
                                 </p>
                               </DropdownItem>
                               <DropdownItem onClick={this.clearChat}>
-                                <p class="dropdown-item" href="javascript:;">
-                                  <i class="ni ni-fat-remove"></i> Delete chat
+                                <p
+                                  className="dropdown-item"
+                                  href="javascript:;"
+                                >
+                                  <i className="ni ni-fat-remove"></i> Delete
+                                  chat
                                 </p>
                               </DropdownItem>
                               <DropdownItem>
@@ -873,53 +889,53 @@ class chat extends React.Component {
                       {/* </div> */}
 
                       {/* 
-          <div class="row justify-content-start">
-            <div class="col-auto">
-              <div class="card">
-                <div class="card-body p-2">
-                  <p class="mb-1">
+          <div className="row justify-content-start">
+            <div className="col-auto">
+              <div className="card">
+                <div className="card-body p-2">
+                  <p className="mb-1">
                     It contains a lot of good lessons about effective practices
                   </p>
                   <div>
-                    <small class="opacity-60"><i class="far fa-clock"></i> 3:14am</small>
+                    <small className="opacity-60"><i className="far fa-clock"></i> 3:14am</small>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div class="row justify-content-end text-right">
-            <div class="col-auto">
-              <div class="card bg-gradient-primary text-white">
-                <div class="card-body p-2">
-                  <p class="mb-1">
+          <div className="row justify-content-end text-right">
+            <div className="col-auto">
+              <div className="card bg-gradient-primary text-white">
+                <div className="card-body p-2">
+                  <p className="mb-1">
                     Can it generate daily design links that include essays and data visualizations ?<br />
                   </p>
                   <div>
-                    <small class="opacity-60">3:30am</small>
-                    <i class="ni ni-check-bold"></i>
+                    <small className="opacity-60">3:30am</small>
+                    <i className="ni ni-check-bold"></i>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="row mt-4">
-            <div class="col-md-12 text-center">
-              <span class="badge text-default">Wed, 3:27pm</span>
+          <div className="row mt-4">
+            <div className="col-md-12 text-center">
+              <span className="badge text-default">Wed, 3:27pm</span>
             </div>
           </div>
         
         
-          <div class="row justify-content-start">
-            <div class="col-auto">
-              <div class="card ">
-                <div class="card-body p-2">
-                  <div class="spinner">
-                    <div class="bounce1"></div>
-                    <div class="bounce2"></div>
-                    <div class="bounce3"></div>
+          <div className="row justify-content-start">
+            <div className="col-auto">
+              <div className="card ">
+                <div className="card-body p-2">
+                  <div className="spinner">
+                    <div className="bounce1"></div>
+                    <div className="bounce2"></div>
+                    <div className="bounce3"></div>
                   </div>
-                  <p class="d-inline-block mr-2 mb-2">
+                  <p className="d-inline-block mr-2 mb-2">
                     Typing...
                   </p>
                 </div>
@@ -927,10 +943,10 @@ class chat extends React.Component {
             </div>
           </div> */}
                     </div>
-                    <div class="card-footer d-block">
-                      <div class="form-group">
-                        <div class="input-group mb-4">
-                          {/* <input class="form-control" placeholder="Your message" type="text"/> */}
+                    <div className="card-footer d-block">
+                      <div className="form-group">
+                        <div className="input-group mb-4">
+                          {/* <input className="form-control" placeholder="Your message" type="text"/> */}
                           {/* <img
                         className="avatar"
                         src={this.state.peerPic}
@@ -939,7 +955,7 @@ class chat extends React.Component {
                     /> */}
 
                           <input
-                            class="form-control"
+                            className="form-control"
                             placeholder="Your message"
                             type="text"
                             value={this.state.inputValue}
@@ -953,16 +969,19 @@ class chat extends React.Component {
                                 Send
                         </Button> */}
 
-                          <div class="input-group-append">
-                            <span class="input-group-text">
+                          <div className="input-group-append">
+                            <span className="input-group-text">
                               <i
-                                class="ni ni-send"
+                                className="ni ni-send"
                                 onClick={() =>
                                   this.onSendMessage(this.state.inputValue, 0)
                                 }
                               ></i>
                             </span>
-                            <a class="dropdown-item" href="javascript:;"></a>
+                            <a
+                              className="dropdown-item"
+                              href="javascript:;"
+                            ></a>
                           </div>
 
                           {/* <UncontrolledDropdown nav>
@@ -978,7 +997,7 @@ class chat extends React.Component {
                     >
                       <DropdownItem
                       >
-                        <a class="dropdown-item" href="javascript:;">
+                        <a className="dropdown-item" href="javascript:;">
                         <input
                         // ref={el => {
                         //     this.refInput = el
@@ -1011,6 +1030,7 @@ class chat extends React.Component {
             </div>
           </section>
         </main>
+        <SimpleFooter />
       </>
     );
   }

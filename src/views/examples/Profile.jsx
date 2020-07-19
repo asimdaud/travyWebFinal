@@ -1,8 +1,8 @@
 import React from "react";
 import moment from "moment";
 // reactstrap components
-import { Button, Card, Container, Row, Col, Modal } from "reactstrap";
-import SmoothImage from "react-smooth-image";
+import { Button, Card, Container, Row, Col, Modal, Badge } from "reactstrap";
+// import SmoothImage from "react-smooth-image";
 // core components
 // import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
@@ -12,8 +12,8 @@ import { isUserSignedIn } from "../../services/authServices";
 import * as firebase from "firebase";
 // import PostModal from "components/Modal/postModal";
 import Post from "../../components/post";
+import PostPicOnly from "../../components/postPicOnly";
 import { Redirect, Link } from "react-router-dom";
-
 
 import UserNavbar from "components/Navbars/UserNavbar";
 // import defModal from "components/Modal/defModal";
@@ -52,12 +52,17 @@ import UserNavbar from "components/Navbars/UserNavbar";
 
 //   }
 
+// const onMouseOver = event => {
+// event.target.style.color = "#f7f7f7";
+// };
+
+// const onMouseOut = event => {
+//   event.target.style.color = "#f7f7f7";
+// };
+
 class Profile extends React.Component {
-  // componentDidMount() {
-  //   document.documentElement.scrollTop = 0;
-  //   document.scrollingElement.scrollTop = 0;
-  //   this.refs.main.scrollTop = 0;
-  // }'
+  firestoreUsersRef = firebase.firestore().collection("users");
+  firestorePostRef = firebase.firestore().collection("posts");
 
   constructor(props) {
     super(props);
@@ -73,50 +78,52 @@ class Profile extends React.Component {
       email: "email@default.com",
       posts: [],
       loading: true,
-      followedUsers: "00",
+      followingList: [],
+      followingListData: [],
+      followerList: [],
+      followerListData: [],
       // showModal: false,
       defaultModal: false,
-      modalItem:""
+      modalItem: "",
     };
   }
 
-  state = {};
-  toggleModal = state => {
+  toggleModal = (state) => {
     this.setState({
-      [state]: !this.state[state]
+      [state]: !this.state[state],
     });
   };
 
+  //   componentWillMount =   () => {
 
-  
-  componentWillMount =   () => {
-   
-    
-    // this.getFollowedUsers();
+  //     // this.getFollowedUsers();
+  //     this.getPosts();
+  // this.getProfilePic();
 
-this.getProfilePic();
+  //       this.getFollowedUsers();
 
-      this.getFollowedUsers();
-      this.getPosts();
-  };
+  //   };
   componentDidMount() {
-
-    // this.getFollowedUsers();
-    // this.getPosts();
+    this.getFriendList();
+    this.getPosts();
+    this.getProfilePic();
+    document.documentElement.scrollTop = 0;
+    document.scrollingElement.scrollTop = 0;
+    this.refs.main.scrollTop = 0;
   }
 
+  componentWillUnmount() {
+    // this.getFollowCount();
+    // this.getPosts();
+    // this.getProfilePic();
+  }
 
   getProfilePic = () => {
-
-    if (isUserSignedIn) {
-      console.log(this.state.user3);
-    }
-
     firebase
       .firestore()
       .collection("users")
       .doc(this.state.user3)
-      .onSnapshot(doc => {
+      .onSnapshot((doc) => {
         const res = doc.data();
 
         if (res != null) {
@@ -124,93 +131,169 @@ this.getProfilePic();
             username: res.username,
             bio: res.bio,
             name: res.name,
-            email: res.email
+            email: res.email,
           });
         }
-        console.log(res);
-        });
+        // console.log(res);
+      });
     // profile pic
-    const firebaseProfilePic =   firebase
+    const firebaseProfilePic = firebase
       .storage()
       .ref()
       .child("profilePics/(" + this.state.user3 + ")ProfilePic");
     firebaseProfilePic
       .getDownloadURL()
-      .then(url => {
+      .then((url) => {
         // Inserting into an State and local storage incase new device:
         this.setState({ profilePic: url });
+        console.log(url);
       })
-      .catch(error => {
+      .catch((error) => {
         // Handle any errors
         switch (error.code) {
           case "storage/object-not-found":
             // File doesn't exist
             this.setState({
               profilePic:
-                "https://images.unsplash.com/photo-1502630859934-b3b41d18206c?w=500&h=500&fit=crop"
+                "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg",
             });
             break;
           default:
         }
         console.log(error);
       });
-
-
-  }
+  };
   getPosts = () => {
     const cloudImages = [];
-    firebase
-      .firestore()
-      .collection("posts")
+    this.firestorePostRef
       .doc(this.state.user3)
       .collection("userPosts")
       .orderBy("time", "desc")
-      .onSnapshot(snapshot => {
-        snapshot.forEach(doc => {    let article = {
-          username: this.state.username,
-          userId: this.state.user3,
-          title: "post",
-          avatar: this.state.profilePic,
-          image: doc.data().image,
-          // cta: "cta",
-          caption: doc.data().caption,
-          location: doc.data().location.coordinates,
-          locName: doc.data().location.locationName,
-          postId: doc.data().postId,
-          timeStamp: doc.data().time,
-          // likes:0,
-          locLatLng: "Address"
-        };
-        cloudImages.push(article);
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          let article = {
+            username: this.state.username,
+            userId: this.state.user3,
+            title: "post",
+            avatar: this.state.profilePic,
+            image: doc.data().image,
+            // cta: "cta",
+            caption: doc.data().caption,
+            location: doc.data().location.coordinates,
+            locName: doc.data().location.locationName,
+            postId: doc.data().postId,
+            timeStamp: doc.data().time,
+            // likes:0,
+            locLatLng: "Address",
+          };
+          cloudImages.push(article);
         });
       });
     this.setState({ posts: cloudImages });
-  } 
+  };
 
+  getFriendList = async () => {
+    let following = [];
+    let follower = [];
+    await this.firestoreUsersRef
+      .doc(this.state.user3)
+      .collection("followedBy")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((docSnap) => {
+          follower.push(docSnap.id);
+        });
+      });
+    await this.firestoreUsersRef
+      .doc(this.state.user3)
+      .collection("following")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((docSnap) => {
+          following.push(docSnap.id);
+        });
+      });
+    this.setState({ followerList: follower, followingList: following });
+    // console.log(this.state.followerList);
+    // console.log(this.state.followingList);
+    this.viewFriendListData();
+  };
+
+  viewFriendListData = () => {
+    let followerArr = [];
+    let Fravatar =
+      "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg";
+    let Frname;
+    this.state.followerList.forEach((userId) => {
+      //  avatar =  this.getUserPic(userId);
+      this.firestoreUsersRef
+        .doc(userId)
+        .get()
+        .then((doc) => {
+          Frname = doc.data().username;
+
+          let followerList = {
+            userId: userId,
+            Frname: Frname,
+            Fravatar:
+              "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+              userId +
+              ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d",
+          };
+
+          followerArr.push(followerList);
+          this.setState({ followerListData: followerArr });
+          // console.log(this.state.followedUsersData);
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    });
+    let followingArr = [];
+    let avatar =
+      "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg";
+    let name;
+    this.state.followingList.forEach((userId) => {
+      //  avatar =  this.getUserPic(userId);
+      this.firestoreUsersRef
+        .doc(userId)
+        .get()
+        .then((doc) => {
+          name = doc.data().username;
+
+          let followingList = {
+            userId: userId,
+            name: name,
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+              userId +
+              ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d",
+          };
+
+          followingArr.push(followingList);
+          this.setState({ followingListData: followingArr });
+          // console.log(this.state.followedUsersData);
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    });
+  };
 
   editprofile() {
     return <Redirect to="/edit-profile" tag={Link} />;
   }
 
-
-
-
   logOut() {
     localStorage.clear();
   }
 
-  // Get all the users the current user is following
-  getFollowedUsers = () => {
-    firebase
-      .firestore()
-      .collection("following")
-      .doc(this.state.user3)
-      .collection("userFollowing")
-      .onSnapshot(snapshot => {
-        let num = snapshot.size;
-        console.log(num);
-        this.setState({ followedUsers: num });
-      });
+  onHover = (userId) => {
+    localStorage.setItem("Fuid", JSON.stringify(userId));
+  };
+
+  onMouseOverColor = (event) => {
+    event.target.backgroudColor = "#FFFFFF";
   };
 
   render() {
@@ -249,17 +332,23 @@ this.getProfilePic();
               </svg>
             </div>
           </section>
-          <section className="section">
+          <section className="section mt--150">
             <Container>
               <Card className="card-profile shadow mt--300">
                 <div className="px-4">
                   <Row className="justify-content-center">
                     <Col className="order-lg-2" lg="3">
                       <div className="card-profile-image">
-                        <a href="#pablo" onClick={e => e.preventDefault()}>
+                        <a href="#pablo" onClick={(e) => e.preventDefault()}>
                           <img
                             alt="..."
-                            className="rounded-circle"
+                            style={{
+                              width: "200px",
+                              height: "200px",
+                              display: "block",
+                              objectFit: "cover",
+                            }}
+                            className="rounded-circle img-responsive"
                             src={this.state.profilePic}
                           />
                         </a>
@@ -291,20 +380,32 @@ this.getProfilePic();
                       </div>
                     </Col>
                     <Col className="order-lg-1" lg="4">
-                      <div className="card-profile-stats d-flex justify-content-center">
+                      <div
+                        className="card-profile-stats d-flex justify-content-center"
+                        onClick={() => this.toggleModal("notificationModal")}
+                        // onMouseEnter={event => onMouseOver(event)}
+                        // onMouseOut={event => onMouseOut(event)}
+                      >
                         <div>
                           <span className="heading">
-                            {this.state.followedUsers}
+                            {" "}
+                            {this.state.posts.length}
                           </span>
-                          <span className="description">Friends</span>
+                          <span className="description">Posts</span>
                         </div>
                         <div>
-                          <span className="heading">10</span>
-                          <span className="description">Photos</span>
+                          <span className="heading">
+                            {" "}
+                            {this.state.followerList.length}
+                          </span>
+                          <span className="description">Followers</span>
                         </div>
                         <div>
-                          <span className="heading">89</span>
-                          <span className="description">Comments</span>
+                          <span className="heading">
+                            {" "}
+                            {this.state.followingList.length}
+                          </span>
+                          <span className="description">Following</span>
                         </div>
                       </div>
                     </Col>
@@ -338,10 +439,10 @@ this.getProfilePic();
                                 className="col-sm-4"
                                 style={{ padding: "10px" }}
                                 key={index}
-                                onClick={() =>{
-                                  this.setState({modalItem: post})
-                                  this.setState({defaultModal:true})
-                                  }}
+                                onClick={() => {
+                                  this.setState({ modalItem: post });
+                                  this.setState({ defaultModal: true });
+                                }}
                               >
                                 <img
                                   src={post.image}
@@ -354,12 +455,12 @@ this.getProfilePic();
                             ))}
                           </div>
                         </div>
-                        <a
+                        {/* <a
                           href="#"
                           onClick={() => this.toggleModal("defaultModal")}
                         >
                           Show more
-                        </a>
+                        </a> */}
                       </Col>
                     </Row>
                   </div>
@@ -370,15 +471,134 @@ this.getProfilePic();
         </main>
 
         <Modal
-size="lg"
+          className="modal-dialog-centered modal-danger"
+          contentClassName="bg-gradient-danger"
+          isOpen={this.state.notificationModal}
+          toggle={() => this.toggleModal("notificationModal")}
+          size="lg"
+        >
+          <div className="modal-header"></div>
+          <Row>
+            <Col>
+              {" "}
+              <ul>
+                <h3 className="mb-0 text-white font-weight-bold">Following</h3>
+
+                {this.state.followingListData.map((user, postindex) => (
+                  <li key={postindex} item={this.state.followingList}>
+                    <Row
+                    // className="justify-content-center"
+                    >
+                      <Col lg="6" onMouseOver={() => this.onHover(user.userId)}>
+                        <div
+                          className="media media-comment"
+                          style={{ margin: "5px" }}
+                        >
+                          <img
+                            alt="Image placeholder"
+                            className="media-comment-avatar avatar rounded-circle"
+                            style={{
+                              display: "block",
+                              objectFit: "cover",
+                              padding: "2px",
+                              margin: "5px",
+                            }}
+                            src={user.avatar}
+                          />
+                          <div className="media-body">
+                            <div className="media-comment-text">
+                              <h4>
+                                <Badge
+                                  color="secondary"
+                                  style={{ padding: "2px" }}
+                                >
+                                  {user.name}
+                                </Badge>
+                              </h4>
+                              {/* <p className="description" onCLick={()=>{}}>View profile</p> */}
+
+                              <Link to="/friend">
+                                <a class="description link">View profile</a>
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </li>
+                ))}
+              </ul>
+            </Col>
+            <Col>
+              <ul>
+                <h3 className="mb-0 text-white font-weight-bold">Followers</h3>
+
+                {this.state.followerListData.map((user, postindex) => (
+                  <li key={postindex} item={this.state.followerList}>
+                    <Row
+                    // className="justify-content-center"
+                    >
+                      <Col lg="6" onMouseOver={() => this.onHover(user.userId)}>
+                        <div
+                          className="media media-comment"
+                          style={{ margin: "5px" }}
+                        >
+                          <img
+                            alt="Image placeholder"
+                            className="media-comment-avatar avatar rounded-circle"
+                            style={{
+                              display: "block",
+                              objectFit: "cover",
+                              padding: "2px",
+                              margin: "5px",
+                            }}
+                            src={user.Fravatar}
+                          />
+                          <div className="media-body">
+                            <div className="media-comment-text">
+                              <h4>
+                                <Badge
+                                  color="secondary"
+                                  style={{ padding: "2px" }}
+                                >
+                                  {user.Frname}
+                                </Badge>
+                              </h4>
+                              {/* <p className="description" onCLick={()=>{}}>View profile</p> */}
+                              <Link to="/friend">
+                                <a class="description link">View profile</a>
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </li>
+                ))}
+              </ul>
+            </Col>
+          </Row>
+          <div className="modal-footer">
+            <Button
+              className="text-white ml-auto"
+              color="link"
+              data-dismiss="modal"
+              type="button"
+              onClick={() => this.toggleModal("notificationModal")}
+            >
+              Close
+            </Button>
+          </div>
+        </Modal>
+
+        <Modal
+          size="md"
           isOpen={this.state.defaultModal}
           toggle={() => this.toggleModal("defaultModal")}
           className="fluid"
-        >     {this.state.modalItem&&
-                <Post item={this.state.modalItem}  
-                />
-              }
-         
+        >
+          {" "}
+          {this.state.modalItem && <PostPicOnly item={this.state.modalItem} />}
         </Modal>
         <SimpleFooter />
       </>

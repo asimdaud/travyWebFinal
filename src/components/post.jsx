@@ -20,7 +20,7 @@ import {
   // Form,
   Input,
   UncontrolledTooltip,
-  // Row,
+  Row,
   UncontrolledPopover,
   PopoverBody,
   PopoverHeader,
@@ -70,7 +70,13 @@ class Post extends React.Component {
 
   firestoreUsersRef = firebase.firestore().collection("users");
 
+  componentWillUnmount = () => {
+    this.getProfilePic();
+  };
+
+
   componentDidMount = () => {
+    this.getProfilePic();
     const { item } = this.props;
 
     // this.setState({userId: item.userId});
@@ -87,19 +93,8 @@ class Post extends React.Component {
       });
     // this.renderComments();
     this.getCommentData();
-  };
 
-  toggleModal = (state) => {
-    this.setState({
-      [state]: !this.state[state],
-    });
-  };
-
-  componentWillMount = () => {
-    this.getProfilePic();
-    // this.mOver();
-
-    const { item } = this.props;
+    // const { item2 } = this.props;
     //     console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     // // console.log(new Date())
     // console.log(props.post)
@@ -117,6 +112,58 @@ class Post extends React.Component {
           this.setState({ ifLiked: false });
         }
       });
+  };
+
+  // this.renderComments();
+  //   this.getCommentData();
+
+  //   // const { item2 } = this.props;
+  //   //     console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+  //   // // console.log(new Date())
+  //   // console.log(props.post)
+  //   // console.log("hahahaha" + item.image);
+
+  //   this.firestorePostRef
+  //     .doc(item.postId)
+  //     .collection("likes")
+  //     .doc(this.state.newLikeDocId)
+  //     .get()
+  //     .then((snapshot) => {
+  //       if (snapshot.exists) {
+  //         this.setState({ ifLiked: true });
+  //       } else {
+  //         this.setState({ ifLiked: false });
+  //       }
+  //     });
+
+  // }
+
+  toggleModal = (state) => {
+    this.setState({
+      [state]: !this.state[state],
+    });
+  };
+
+  componentWillMount = () => {
+    // this.getProfilePic();
+    // this.mOver();
+    // const { item } = this.props;
+    // //     console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    // // // console.log(new Date())
+    // // console.log(props.post)
+    // // console.log("hahahaha" + item.image);
+    // this.firestorePostRef
+    //   .doc(item.postId)
+    //   .collection("likes")
+    //   .doc(this.state.newLikeDocId)
+    //   .get()
+    //   .then((snapshot) => {
+    //     if (snapshot.exists) {
+    //       this.setState({ ifLiked: true });
+    //     } else {
+    //       this.setState({ ifLiked: false });
+    //     }
+    //   });
   };
 
   getProfilePic = (friendId) => {
@@ -188,6 +235,7 @@ class Post extends React.Component {
   postComment = (e) => {
     e.preventDefault();
     const { item } = this.props;
+    const timestamp = moment().valueOf().toString();
     let myComment = this.state.commentInput;
     let myusername = this.state.currentUsername;
     let myuserId = this.user.uid;
@@ -198,30 +246,55 @@ class Post extends React.Component {
         .collection("comments")
         .doc(item.postId)
         .collection("userComments")
-        .add({})
-        .then((comment) => {
-          firebase
-            .firestore()
-            .collection("comments")
-            .doc(item.postId)
-            .collection("userComments")
-            .doc(comment.id)
-            .set({
-              commentId: comment.id,
-              username: myusername,
-              userId: myuserId,
-              comment: myComment,
-            })
-            .then(() => {
-              this.setState({ commentInput: "" });
+        .doc(timestamp)
+        .set({
+          commentId: timestamp,
+          username: myusername,
+          userId: myuserId,
+          comment: myComment,
+          timestamp: timestamp,
+        })
+        .then(() => {
+          this.setState({ commentInput: "" });
 
-              this.getCommentData();
-            });
+          this.getCommentData();
         })
         .catch((err) => {
           console.log(err);
         });
     }
+
+    // if (myComment != "") {
+    //   firebase
+    //     .firestore()
+    //     .collection("comments")
+    //     .doc(item.postId)
+    //     .collection("userComments")
+    //     .add({})
+    //     .then((comment) => {
+    //       firebase
+    //         .firestore()
+    //         .collection("comments")
+    //         .doc(item.postId)
+    //         .collection("userComments")
+    //         .doc(comment.id)
+    //         .set({
+    //           commentId: comment.id,
+    //           username: myusername,
+    //           userId: myuserId,
+    //           comment: myComment,
+    //           timestamp: timestamp
+    //         })
+    //         .then(() => {
+    //           this.setState({ commentInput: "" });
+
+    //           this.getCommentData();
+    //         });
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
+    // }
   };
 
   getCommentData() {
@@ -247,6 +320,7 @@ class Post extends React.Component {
           // console.log(doc.data()+commArray);
         });
         this.setState({ commentsArray: commArray });
+        // console.log(this.state.commentsArray)
       })
       .catch((err) => {
         console.log(err);
@@ -258,15 +332,22 @@ class Post extends React.Component {
 
     // if (!item.avatar) return null;
     return (
-      <Link to="/friendspage">
+      <Link to="/friend">
         <img
-          // className="rounded-circle"
-          className="avatar"
-          width="45"
-          src={item.avatar}
-          // src={this.user.uid}
-          alt=""
-          // onClick={localStorage.setItem('Fuid', JSON.stringify(this.state.userId))}
+          style={{
+            width: "55px",
+            height: "55px",
+            display: "block",
+            objectFit: "cover",
+          }}
+          className="rounded-circle img-responsive"
+          // className="avatar"
+          src={
+            "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+            this.state.userId +
+            ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d"
+          }
+          // src={item.avatar}
         />
       </Link>
     );
@@ -374,75 +455,79 @@ class Post extends React.Component {
     localStorage.setItem("Fuid", JSON.stringify(this.state.userId));
   };
 
-  mOver = () => {
-    const { item } = this.props;
+  // mOver = () => {
+  //   const { item } = this.props;
 
-    var geocoder = new google.maps.Geocoder();
+  //   var geocoder = new google.maps.Geocoder();
 
-    // var latlng = {lat: this.state.locLat, lng: this.state.locLng};
-    var latlng = {
-      lat: parseFloat(item.location.lat),
-      lng: parseFloat(item.location.lng),
-    };
-    geocoder.geocode({ location: latlng }, function (results, status) {
-      if (status === "OK") {
-        if (results[0]) {
-          // console.log(results[0].formatted_address);
-          // this.state.locLatLng=results[0].formatted_address;
-          item.locLatLng = results[0].formatted_address;
-          console.log(item.locLatLng);
-          // this.setState({ locLatLng:results[0].formatted_address });
-          // map.setZoom(11);
-          // var marker = new google.maps.Marker({
-          //   position: latlng,
-          //   map: map
-          // });
-          // infowindow.setContent(results[0].formatted_address);
-          // infowindow.open(map, marker);
-        } else {
-          console.log("No address found");
-        }
-      }
-    });
-    return;
-  };
+  //   // var latlng = {lat: this.state.locLat, lng: this.state.locLng};
+  //   var latlng = {
+  //     lat: parseFloat(item.location.lat),
+  //     lng: parseFloat(item.location.lng),
+  //   };
+  //   geocoder.geocode({ location: latlng }, function (results, status) {
+  //     if (status === "OK") {
+  //       if (results[0]) {
+  //         // console.log(results[0].formatted_address);
+  //         // this.state.locLatLng=results[0].formatted_address;
+  //         item.locLatLng = results[0].formatted_address;
+  //         console.log(item.locLatLng);
+  //         // this.setState({ locLatLng:results[0].formatted_address });
+  //         // map.setZoom(11);
+  //         // var marker = new google.maps.Marker({
+  //         //   position: latlng,
+  //         //   map: map
+  //         // });
+  //         // infowindow.setContent(results[0].formatted_address);
+  //         // infowindow.open(map, marker);
+  //       } else {
+  //         console.log("No address found");
+  //       }
+  //     }
+  //   });
+  //   return;
+  // };
 
   render() {
     const { item } = this.props;
     return (
-      <Container style={{ zoom: "90%" }}>
-        <section style={{ padding: "16px" }}>
-          <div className="container">
-            <div className="row">
-              <div className="col-md-8 mx-auto">
-                <div className="card  shadow">
-                  {/* <div className="card-header">
+      <>
+        <div style={{ padding: "16px", borderRadius: "20px" }}>
+          <div
+            className="shadow"
+            style={{
+              // padding: "16px",
+              borderRadius: "20px",
+            }}
+          >
+            {/* <div className="card-header">
                 <h5 className="h3 mb-0">Timeline</h5>
               </div> */}
-                  <div
-                    className="card-header d-flex align-items-center"
-                    // onClick={this.togglePage()}
-                  >
-                    <div
-                      className="d-flex align-items-center"
-                      onClick={() => {
-                        this.togglePage();
-                      }}
-                      onMouseOver={this.onHover}
-                      href="javascript:;"
-                    >
-                      {/* <i
+            <div
+              className="card-header d-flex align-items-center "
+              // style={{  MozBorderRadiusTopleft:"20px",MozBorderRadiusTopright:"20px"  }}
+              // onClick={this.togglePage()}
+            >
+              <div
+                className="d-flex align-items-center"
+                // onClick={() => {this.togglePage();}}
+                // onClick={() => {this.togglePage();}}
+                onMouseOver={() => this.onHover()}
+
+                // href="javascript:;"
+              >
+                {/* <i
                         href="javascript:;"
                         onClick={this.togglePage()}
                         // onMouseOver={this.mOver()}
                         // id={this.returnPostId()}
                       > */}
-                      {this.renderAvatar()}
-                      {this.togglePage()}
+                {this.renderAvatar()}
+                {/* {this.togglePage()} */}
 
-                      {/* </a> */}
+                {/* </a> */}
 
-                      {/* <UncontrolledPopover
+                {/* <UncontrolledPopover
                         trigger="focus"
                         placement="right"
                         target={this.returnPostId()}
@@ -457,119 +542,141 @@ class Post extends React.Component {
                         </PopoverBody>
                       </UncontrolledPopover> */}
 
-                      <div className="mx-3">
-                        <a
-                          href="javascript:;"
-                          className="text-dark font-weight-600 text-sm"
-                        >
-                          {/* {this.getCurrentUsername} */}
-                          {item.username}
-                          {/* {item.userId} */}
-                          {/* {this.user.username} */}
-                        </a>
-                        <small className="opacity-60">
-                          <small className="d-block text-muted">
-                            {/* {moment(Number(item.timeStamp.toDate())).format(
+                <div className="mx-3">
+                  <h6 className="mb-0 text-black font-weight-bold">
+                    {item.username}{" "}
+                  </h6>
+
+                  <small className="text-muted">
+                    {/* {"     @"} {item.username} */}
+                    {"on "}
+                    {moment(Number(item.timeStamp)).format("dddd")}
+                  </small>
+                  <small className="opacity-60">
+                    <small className="d-block text-muted">
+                      {/* {moment(Number(item.timeStamp.toDate())).format(
                               "ll"
                             )} */}
-                            {/* {item.timeStamp} */}
-                          </small>
-                        </small>
-                      </div>
-                    </div>
-                    <div className="text-right ml-auto">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-primary btn-icon"
-                        onClick={() => {
-                          this.mOver();
-                        }}
-                      >
-                        <span className="btn-inner--icon icon-big">
-                          <i
-                            className="fa fa-map-marker"
-                            id="tooltip556394744"
-                          ></i>
-                        </span>
-                        {/* <span className="btn-inner--text">{item.locLatLng}</span> */}
-                        <span className="btn-inner--text">{item.locName}</span>
-                      </button>
-                    </div>
+                      {/* {item.timeStamp} */}
+                    </small>
+                  </small>
+                </div>
+              </div>
+              {item.locName ? (
+                <div className="text-right ml-auto" style={{ color: "black" }}>
+                  <span className="btn-inner--icon icon-big">
+                    <i className="fa fa-map-marker" id="tooltip556394744"></i>
+                    {"  "}
+                  </span>
+                  {/* <span className="btn-inner--text">{item.locLatLng}</span> */}
+                  <span className="btn-inner--text"> {item.locName}</span>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+            <div
+              // className="mb-0 text-black font-weight-bold"
+              className="justify-content-between align-items-center"
+              style={{
+                backgroundColor: "#F7F7F7",
+                //  MozBorderRadiusBottomleft:"20px",MozBorderRadiusBottomright:"20px"
+              }}
+            >
+              <h6
+                className="display-5 font-italic text-black"
+                style={{ paddingLeft: "10px", paddingTop: "8px" }}
+              >
+                {item.caption}
+              </h6>
+              {/* <SmoothImage
+                alt="Image placeholder"
+                src={item.image}
+                className="img-fluid rounded"
+              /> */}
+              <img
+                alt="Image placeholder"
+                src={item.image}
+                className="img-fluid rounded"
+                style={{
+                  width: "100%",
+                  height: "620px",
+                  display: "block",
+                  "object-fit": "cover",
+                  zoom: "90%",
+                }}
+              />
+              <div className="row align-items-center my-3 pb-3 border-bottom">
+                <div className="col-sm-12">
+                  <div className="icon-actions">
+                    {this.state.ifLiked === true ? (
+                      <Favorite color="error" onClick={this.toggleLike} />
+                    ) : (
+                      <FavoriteBorder
+                        color="secondary"
+                        onClick={this.toggleLike}
+                      />
+                    )}
+
+                    <span className="text-muted">
+                      {" "}
+                      {" " + this.state.likes}
+                      {" likes "}
+                    </span>
+
+                    <Comment color="primary" />
+
+                    <span className="text-muted">
+                      {/* d-none d-lg-block */}{" "}
+                      {" " + this.state.commentsArray.length}
+                      {" comments"}
+                    </span>
+
+                    {/* {this.commentFunc()} */}
                   </div>
-                  <div className="card-body">
-                    <p className="mb-4">{item.caption}</p>
-                    <SmoothImage
-                      alt="Image placeholder"
-                      src={item.image}
-                      className="img-fluid rounded"
-                    />
-                    <div className="row align-items-center my-3 pb-3 border-bottom">
-                      <div className="col-sm-6">
-                        <div className="icon-actions">
-                          {this.state.ifLiked === true ? (
-                            <Favorite color="error" onClick={this.toggleLike} />
-                          ) : (
-                            <FavoriteBorder
-                              color="secondary"
-                              onClick={this.toggleLike}
-                            />
-                          )}
+                </div>
+              </div>
 
-                          <span className="text-muted">
-                            {" "}
-                            {" " + this.state.likes}
-                            {" likes "}
-                          </span>
+              {/* <!-- Comments --> */}
+              <div className="mb-1" style={{ zoom: "95%" }}>
+                {this.state.commentsArray.map((comment, postindex) => (
+                  <CommentItem item={comment} key={postindex} />
+                ))}
 
-                          <Comment color="primary" />
-
-                          <span className="text-muted">
-                          {/* d-none d-lg-block */}
-                            {" "}
-                            {" " + this.state.commentsArray.length}
-                            {" comments "}
-                          </span>
-
-                          {/* {this.commentFunc()} */}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* <!-- Comments --> */}
-                    <div className="mb-1">
-                      {this.state.commentsArray.map((comment, postindex) => (
-                        <CommentItem item={comment} key={postindex} />
-                      ))}
-                      <div className="media align-items-center mt-1">
-                        <img
-                          alt="Image placeholder"
-                          className="avatar"
-                          src={this.state.profilePic}
-                        />
-                        <div className="media-body">
-                          <Form
-                            id="formComment"
-                            role="form"
-                            onSubmit={this.postComment}
-                          >
-                            <Input
-                            class="form-control"
-                              id="commentInput"
-                              placeholder="Write your comment"
-                              onChange={this.handleChange}
-                              value={this.state.commentInput}
-                              rows="1"
-                            ></Input>
-                          </Form>
-                        </div>
-                      </div>
-                    </div>
+                <div className="media align-items-center mt-1">
+                  <img
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      display: "block",
+                      objectFit: "cover",
+                    }}
+                    className="rounded  img-responsive"
+                    // alt="Image placeholder"
+                    // className="avatar"
+                    src={this.state.profilePic}
+                  />
+                  <div className="media-body">
+                    <Form
+                      id="formComment"
+                      role="form"
+                      onSubmit={this.postComment}
+                    >
+                      <Input
+                        className="form-control"
+                        id="commentInput"
+                        placeholder="Write your comment"
+                        onChange={this.handleChange}
+                        value={this.state.commentInput}
+                        rows="1"
+                      ></Input>
+                    </Form>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
 
         <Modal
           isOpen={this.state.defaultModal}
@@ -610,7 +717,7 @@ class Post extends React.Component {
             </Button>
           </div>
         </Modal>
-      </Container>
+      </>
     );
   }
 }
