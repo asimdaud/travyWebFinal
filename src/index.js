@@ -5,9 +5,6 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import "assets/vendor/nucleo/css/nucleo.css";
 import "assets/vendor/font-awesome/css/font-awesome.min.css";
 import "assets/scss/argon-design-system-react.scss";
-
-import Index from "views/Index.jsx";
-import Landing from "views/examples/Landing.jsx";
 import Login from "views/examples/Login.jsx";
 import Profile from "views/examples/Profile.jsx";
 import Register from "views/examples/Register.jsx";
@@ -29,41 +26,6 @@ import Mapbox from "views/examples/Mapbox";
 import ExploreAroundMe from "views/examples/ExploreAroundMe";
 import PeopleYouMayKnow from "views/examples/PeopleYouMayKnow";
 
-// import MapC from "views/examples/MapContainer";
-
-// import { isUserSignedIn } from "./services/authServices";
-
-// function PrivateRoute({ children, ...rest }) {
-//   return (
-//     <Route
-//       {...rest}
-//       render={({ location }) =>
-//         fakeAuth.isAuthenticated ? (
-//           children
-//         ) : (
-//           <Redirect
-//             to={{
-//               pathname: "/login",
-//               state: { from: location }
-//             }}
-//           />
-//         )
-//       }
-//     />
-//   );
-// }
-// const fakeAuth = {
-//   isAuthenticated: false,
-//   isUserSignedIn(cb) {
-//     fakeAuth.isAuthenticated = true;
-//     setTimeout(cb, 100); // fake async
-//   },
-//   signout(cb) {
-//     fakeAuth.isAuthenticated = false;
-//     setTimeout(cb, 100);
-//   }
-// };
-
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
@@ -75,20 +37,7 @@ ReactDOM.render(
 
       {/* <Route path="/" exact render={props => <Timeline {...props} />} /> */}
 
-      {/* <Route
-        path="/landing-page"
-        exact
-        render={props => <Landing {...props} />}
-      /> */}
-      {/* <Route
-        path="/location2"
-        exact
-        render={(props) => <Location2 {...props} />}
-      /> */}
-      {/* <Route path="/Mapbox" exact render={(props) => <Mapbox {...props} />} /> */}
-
       <PrivateRoute path="/heatmap" exact render={(props) => <Loc {...props} />} />
-      <Route path="/index" exact render={(props) => <Index {...props} />} />
       <Route path="/login" exact render={(props) => <Login {...props} />} />
 
       <PrivateRoute
