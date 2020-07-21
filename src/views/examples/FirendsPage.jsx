@@ -782,7 +782,11 @@ class FriendsPage extends React.Component {
                       >
                         <Col
                           lg="6"
-                          onMouseOver={() => this.onHover(user.userId)}
+
+                          onMouseOver={() => localStorage.setItem("Fuid", JSON.stringify(user.groupId))}
+                          onClick={()=>{  window.location.reload(false) }
+                          }
+
                         >
                           {/* <div className="card-profile-stats d-flex justify-content-center"> */}
                           {/* <p className="mb-0 text-black font-weight-bold">
@@ -828,9 +832,7 @@ class FriendsPage extends React.Component {
                                     {user.name}
                                   </Badge>
                                 </h4>
-                                {/* <p className="description" onCLick={() => {}}>
-                                  View profile
-                                </p> */}
+
                                 <a href="/friend" class="description link">
                                   View profile
                                 </a>
@@ -857,7 +859,10 @@ class FriendsPage extends React.Component {
                       >
                         <Col
                           lg="6"
-                          onMouseOver={() => this.onHover(user.userId)}
+
+                          onMouseOver={() => localStorage.setItem("Fuid", JSON.stringify(user.groupId))}
+                          onClick={()=>{  window.location.reload(false) }
+                          }
                         >
                           {/* <div className="card-profile-stats d-flex justify-content-center"> */}
                           {/* <p className="mb-0 text-black font-weight-bold">

@@ -104,6 +104,8 @@ class Profile extends React.Component {
 
   //   };
   componentDidMount() {
+    localStorage.setItem("groupId", JSON.stringify("TCeQwxQ2DprIpZpr431V"));
+
     this.getFriendList();
     this.getPosts();
     this.getProfilePic();

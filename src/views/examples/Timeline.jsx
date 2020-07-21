@@ -41,17 +41,11 @@ const userId = JSON.parse(localStorage.getItem("uid"));
 // const fuid = JSON.parse(localStorage.getItem("Fuid"));
 
 class Timeline extends React.Component {
-  // _isMounted = false;
-
-  // user3 = firebase.auth().currentUser;
   firestoreUsersRef = firebase.firestore().collection("users");
   firestorePostRef = firebase.firestore().collection("posts");
   firestoreUserRecommendationsRef = firebase
     .firestore()
-    .collection("userRecommendations")
-    .doc(userId)
-    .collection("recommendedUsers")
-    .doc(userId);
+    .collection("userRecommendations");
 
   // firestoreFollowingRef = firebase
   //   .firestore()
@@ -108,28 +102,28 @@ class Timeline extends React.Component {
   // this.getFollowingPosts();
   // };
 
-  componentDidMount = () => {
-    // this.getProfilePic();
-    // this.getFollowingPosts();
-    // this._isMounted = true;
-    // this.getFollowedUsers().then(result => {
-    //   if (this._isMounted) {
-    //     this.setState({isLoading: false})
-    //   }
-    // });
-    // localStorage.removeItem("Fuid");
+  // componentDidMount = () => {
+  //   // this.getProfilePic();
+  //   // this.getFollowingPosts();
+  //   // this._isMounted = true;
+  //   // this.getFollowedUsers().then(result => {
+  //   //   if (this._isMounted) {
+  //   //     this.setState({isLoading: false})
+  //   //   }
+  //   // });
+  //   // localStorage.removeItem("Fuid");
 
-    user3: JSON.parse(localStorage.getItem("uid"));
+  //   user3: JSON.parse(localStorage.getItem("uid"));
 
-    this.getUserRec();
-    this.getProfilePic();
-    this.getFollowedUsers();
-    this.getFollowingPosts();
+  //   this.getUserRec();
+  //   this.getProfilePic();
+  //   this.getFollowedUsers();
+  //   this.getFollowingPosts();
 
-    // this.getCurrentLocation().then(() => {
-    this.getPlaces();
-    // });
-  };
+  //   // this.getCurrentLocation().then(() => {
+  //   this.getPlaces();
+  //   // });
+  // };
 
   componentWillUnmount() {
     this.getFollowedUsers();
@@ -147,6 +141,30 @@ class Timeline extends React.Component {
     // this.getFollowedUsers();
     // this.getFollowingPosts();
   }
+
+  getFriendId = async () => {
+    // this.state.friendId = JSON.parse(localStorage.getItem("Fuid"));
+  };
+
+  componentDidMount() {
+    document.documentElement.scrollTop = 0;
+    document.scrollingElement.scrollTop = 0;
+    this.refs.main.scrollTop = 0;
+
+    this.getFriendId().then(() => {
+      this.getUserRec();
+      this.getProfilePic();
+      this.getFollowedUsers();
+      this.getFollowingPosts();
+  
+      // this.getCurrentLocation().then(() => {
+      this.getPlaces();
+      // });
+  
+    });  }
+
+
+
   // Get all the users the current user3 is following
   getFollowedUsers = async () => {
     let users = [];
@@ -350,17 +368,21 @@ class Timeline extends React.Component {
 
   getUserRec = async () => {
     let users = [];
-    await this.firestoreUserRecommendationsRef.onSnapshot((doc) => {
-      const res = doc.data();
+    await this.firestoreUserRecommendationsRef
+      .doc(this.state.user3)
+      .collection("recommendedUsers")
+      .doc(this.state.user3)
+      .onSnapshot((doc) => {
+        const res = doc.data();
 
-      res.users.map((data, index) => {
-        users.push(data.id);
+        res.users.map((data, index) => {
+          users.push(data.id);
+        });
+        this.setState({ userRec: users });
+        console.log(this.state.userRec);
+
+        this.viewUserRec();
       });
-      this.setState({ userRec: users });
-      console.log(this.state.userRec);
-
-      this.viewUserRec();
-    });
   };
 
   viewUserRec = () => {
@@ -422,50 +444,36 @@ class Timeline extends React.Component {
   };
 
   getPlaces = () => {
-    // const { userLat, userLong, placeType } = this.state;
-    // const lat = userLat;
-    // const long = userLong;
     const markers = [];
-    // const url = this.getPlacesUrl(lat, long, 4200, placeType);
-    // console.log(url);
-    // fetch(url)
-    //   .then((res) => res.json())
-    //   .then((res) => {
-
+    //NEARBY PLACES
     // firebase
-    // .firestore()
-    // .collection("users")
-    // .doc(this.state.user3)
+    //   .firestore()
+    //   .collection("placesRecommendations")
+    //   .doc(this.state.user3)
+    //   .collection("recommendedPlaces")
+    //   .doc(this.state.user3)
 
     firebase
       .firestore()
-      .collection("placesRecommendations")
+      .collection("userSuggestedPlaces")
       .doc(this.state.user3)
-      .collection("recommendedPlaces")
-      .doc(this.state.user3)
-      // .limit(3)
-      // .limitToLast(100)
       .onSnapshot((doc) => {
         const res = doc.data();
-        //  console.log(res);
-        //  console.log(doc);
-        // console.log(doc.data());
-
         res.places.slice(0, 3).map((element, index) => {
           const marketObj = {};
           marketObj.id = element.id;
-          marketObj.icon = element.icon;
+          // marketObj.icon = element.icon;
           marketObj.place_id = element.place_id;
-          marketObj.opening_hours = element.opening_hours;
+          // marketObj.opening_hours = element.opening_hours;
           // marketObj.photoURL=element.photos[0].getUrl();
           marketObj.name = element.name;
           marketObj.photos = element.photos;
           marketObj.rating = element.rating;
           marketObj.vicinity = element.vicinity;
-          marketObj.type = element.types;
+          marketObj.type = element.type;
           marketObj.marker = {
-            latitude: element.geometry.location.lat,
-            longitude: element.geometry.location.lng,
+            latitude: element.marker.latitude,
+            longitude: element.marker.longitude,
           };
 
           markers.push(marketObj);
@@ -538,7 +546,9 @@ class Timeline extends React.Component {
                   style={{
                     position: "fixed",
                     top: "175px",
+                    // left:"0px",
                     borderRadius: "6px",
+                    // transform:"translateX(-20%)"
                   }}
                 >
                   <Link to="/heatmap">
@@ -564,7 +574,7 @@ class Timeline extends React.Component {
                         alt=""
                       />
 
-                      <div className="overlay" to="/explore" tag={Link}>
+                      <div className="overlay" to="/heatmap" tag={Link}>
                         <h2>View Heatmaps</h2>
 
                         {/* <a href="#">View Heatmaps</a> */}
@@ -760,6 +770,7 @@ class Timeline extends React.Component {
                                   objectFit: "cover",
                                 }}
                                 className="rounded"
+                                referrerPolicy="no-referrer"
                                 src={
                                   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=` +
                                   data.photos[0].photo_reference +

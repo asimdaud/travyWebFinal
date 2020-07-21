@@ -40,6 +40,336 @@ class location extends React.Component {
   firestorePostRef = firebase.firestore().collection("posts");
   // firestoreFollowingRef = firebase.firestore().collection("following").doc(this.state.user).collection("userFollowing");
 
+  MapWrapper = withScriptjs(
+    withGoogleMap((props) => (
+      <GoogleMap
+        defaultZoom={10}
+        // panTo={{
+        //   lat: this.state.markerPosition.lat,
+        //     lng: this.state.markerPosition.lng,
+        // }}
+        // defaultCenter={{ lat: 33.738045, lng: 73.084488 }}
+        defaultCenter={{
+          lat: this.state.mapPosition.lat,
+          lng: this.state.mapPosition.lng,
+        }}
+        getClickableIcons={true}
+        defaultOptions={{
+          styles: [
+            {
+              featureType: "all",
+              elementType: "all",
+              stylers: [
+                { invert_lightness: true },
+                { saturation: "-9" },
+                { lightness: "0" },
+                { visibility: "simplified" },
+              ],
+            },
+            {
+              featureType: "landscape.man_made",
+              elementType: "all",
+              stylers: [{ weight: "1.00" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "all",
+              stylers: [{ weight: "0.49" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels",
+              stylers: [
+                { visibility: "on" },
+                { weight: "0.01" },
+                { lightness: "-7" },
+                { saturation: "-35" },
+              ],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels.text",
+              stylers: [{ visibility: "on" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels.text.stroke",
+              stylers: [{ visibility: "off" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels.icon",
+              stylers: [{ visibility: "on" }],
+            },
+          ],
+
+          scrollwheel: false,
+          streetViewControl: false,
+          disableDoubleClickZoom: false,
+          // ,mapTypeId: google.maps.MapTypeId.TERRAIN
+          // ,mapTypeId: google.maps.MapTypeId.ROADMAP
+          // mapTypeId: google.maps.MapTypeId.HYBRID,
+
+          // new stuff -->
+          panControl: true,
+          mapTypeControl: true,
+          panControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_CENTER,
+          },
+          zoomControl: true,
+          zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.LARGE,
+            position: google.maps.ControlPosition.RIGHT_CENTER,
+          },
+          scaleControl: false,
+          streetViewControl: false,
+          streetViewControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_CENTER,
+          },
+        }}
+      >
+        {/* For Auto complete Search Box */}
+        {/* <Autocomplete
+          controlPosition={google.maps.ControlPosition.TOP}
+          style={{
+            boxSizing: `border-box`,
+            border: `1px solid transparent`,
+            width: `100%`,
+            height: `32px`,
+            marginTop: `27px`,
+            padding: `0 12px`,
+            borderRadius: `3px`,
+            boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
+            fontSize: `14px`,
+            outline: `none`,
+            textOverflow: `ellipses`,
+          }}
+          onPlaceSelected={this.onPlaceSelected}
+          types={["(regions)"]}
+        /> */}
+
+        {/* <SearchBox
+          // ref={props.onSearchBoxMounted}
+          // bounds={props.bounds}
+          controlPosition={google.maps.ControlPosition.TOP}
+          // // onPlacesChanged={props.onPlacesChanged}
+          // onPlaceSelected={props.onPlaceSelected}
+          // onPlacesChanged={props.onPlaceSelected}
+          // // onPlaceSelected={this.onPlaceSelected}
+          // types={["(regions)"]}
+          onPlaceSelected={this.onPlaceSelected}
+          types={["(regions)"]}
+
+        >
+          <input
+            type="text"
+            placeholder="Enter a location"
+            style={{
+              boxSizing: `border-box`,
+              border: `1px solid transparent`,
+              width: `240px`,
+              height: `32px`,
+              marginTop: `27px`,
+              padding: `0 12px`,
+              borderRadius: `3px`,
+              boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
+              fontSize: `14px`,
+              outline: `none`,
+              textOverflow: `ellipses`,
+            }}
+          />
+        </SearchBox> */}
+
+        {/*Marker*/}
+        {/* <Marker
+
+          options={{
+            icon: {
+              url: require("assets/img/icons/map/navigation.png"),
+              scaledSize: { width: 40, height: 40 },
+            },
+          }}
+          google={this.props.google}
+          // name={"Dolores park"}
+          draggable={true}
+          onDragEnd={this.onMarkerDragEnd}
+          position={{
+            lat: this.state.markerPosition.lat,
+            lng: this.state.markerPosition.lng,
+          }}
+        />
+        <Marker /> */}
+
+        {/* InfoWindow on top of marker */}
+        {/* <InfoWindow
+          onClose={this.onInfoWindowClose}
+          position={{
+            lat: this.state.markerPosition.lat + 0.0018,
+            lng: this.state.markerPosition.lng,
+          }}
+        >
+          <div>
+            <span style={{ padding: 0, margin: 0 }}>
+              {this.state.address}
+            </span>
+          </div>
+        </InfoWindow> */}
+
+        {this.state.showMyLoc ? (
+          <InfoWindow
+            onClick={() => {
+              this.hideMyLoc();
+            }}
+            onClose={this.onInfoWindowClose}
+            position={{
+              lat: props.getUserLat + 0.0018,
+              lng: props.getUserLong,
+            }}
+          >
+            <div>
+              <img
+                height="50"
+                width="50"
+                style={{
+                  // width: "200px",
+                  // height: "200px",
+                  display: "block",
+                  objectFit: "cover",
+                }}
+                alt="..."
+                className="avatar"
+                // src={this.state.userAvatar}
+                src={
+                  "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+                  this.state.user +
+                  ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d"
+                }
+              />
+              <pre>{props.getUserLocation}</pre>
+            </div>
+          </InfoWindow>
+        ) : null}
+
+        {props.heatMapData.map((mark, index) => (
+          <Marker
+            onClick={() => {
+              this.setState({ defaultModal: true });
+              this.setState({ modalItem: this.state.posts[index] });
+            }}
+            position={mark}
+            options={{
+              icon: {
+                url: require("assets/img/icons/map/marker.png"),
+                scaledSize: { width: 40, height: 40 },
+              },
+            }}
+            title="Clickable marker"
+            animation="drop"
+            // animation={new google.maps.Animation}
+          ></Marker>
+        ))}
+
+        {this.state.getSuggPlaces
+          ? this.state.userSuggestedPlaces.map((mark, index) => (
+              <Marker
+                position={{
+                  lat: mark.marker.latitude,
+                  lng: mark.marker.longitude,
+                }}
+                options={{
+                  icon: {
+                    url: require("assets/img/icons/map/map2.png"),
+                    scaledSize: { width: 70, height: 70 },
+                  },
+                }}
+                title={mark.name}
+                animation="drop"
+                // animation={new google.maps.Animation}
+              ></Marker>
+            ))
+          : ""}
+
+        {this.state.getPlacesNearMe
+          ? this.state.placesNearMe.map((mark, index) => (
+              <Marker
+                position={{
+                  lat: mark.marker.latitude,
+                  lng: mark.marker.longitude,
+                }}
+                options={{
+                  icon: {
+                    url: require("assets/img/icons/map/gm5.png"),
+                    scaledSize: { width: 30, height: 30 },
+                  },
+                }}
+                title={mark.name}
+                animation="drop"
+                // animation={new google.maps.Animation}
+              ></Marker>
+            ))
+          : ""}
+
+        <HeatmapLayer
+          options={
+            { radius: 70 }
+            //   ,{ opacity: 1 },
+            // { maxIntensity: 200 },
+            // { //   gradient: [
+            //     "rgba(0, 255, 255, 0)",
+            //     "rgba(0, 255, 255, 1)",
+            //     "rgba(0, 191, 255, 1)",
+            //     "rgba(0, 127, 255, 1)",
+            //     "rgba(0, 63, 255, 1)",
+            //     "rgba(0, 0, 255, 1)",
+            //     "rgba(0, 0, 223, 1)",
+            //     "rgba(0, 0, 191, 1)",
+            //     "rgba(0, 0, 159, 1)",
+            //     "rgba(0, 0, 127, 1)",
+            //     "rgba(0, 0, 127, 1)",
+            //     "rgba(63, 0, 91, 1)",
+            //     "rgba(127, 0, 63, 1)",
+            //     "rgba(191, 0, 31, 1)",
+            //     "rgba(255, 0, 0, 1)"
+            //   ]
+            // }
+          }
+          data={props.heatMapData}
+        />
+
+<HeatmapLayer
+          options={
+            { radius: 99 }
+              ,{ opacity: 0.5 },
+            { maxIntensity: 200 },
+            {   gradient: [
+                "rgba(0, 255, 255, 0)",
+                "rgba(0, 255, 255, 1)",
+                "rgba(0, 191, 255, 1)",
+                "rgba(0, 127, 255, 1)",
+                "rgba(0, 63, 255, 1)",
+                "rgba(0, 0, 255, 1)",
+                "rgba(0, 0, 223, 1)",
+                "rgba(0, 0, 191, 1)",
+                "rgba(0, 0, 159, 1)",
+                "rgba(0, 0, 127, 1)",
+                "rgba(0, 0, 127, 1)",
+                "rgba(63, 0, 91, 1)",
+                "rgba(127, 0, 63, 1)",
+                "rgba(191, 0, 31, 1)",
+                "rgba(255, 0, 0, 1)"
+              ]
+            }
+          }
+          data={this.state.getHeatMapDataForPlaces}
+
+        />
+
+
+        {/* <TrafficLayer   onLoad={onLoad}/> */}
+      </GoogleMap>
+    ))
+  );
+
   state = {
     posts: [],
     followedUsers: [],
@@ -47,9 +377,13 @@ class location extends React.Component {
     userData: {},
     currentUserData: {},
     avatar: "",
+    userSuggestedPlaces: [],
+    getSuggPlaces: false,
     heatMapData: [],
     marks: [],
     selectedMarker: false,
+    placesNearMe: [],
+    getPlacesNearMe: false,
     postId: [],
     defaultModal: false,
     userLastSeen: "N/A",
@@ -57,6 +391,7 @@ class location extends React.Component {
     userLatitude: 0,
     markerImage: "",
     modalItem: "",
+    getHeatMapDataForPlaces:[],
     // address: "",
     // city: "",
     loading: true,
@@ -103,8 +438,10 @@ class location extends React.Component {
    */
   componentDidMount() {
     this.getFollowingPosts().then(() => {
+     
       this.getHeatMapData();
       this.getUserLastSeen();
+      this.getHeatMapDataForPlaces();
 
       // this.onClick();
     });
@@ -208,13 +545,11 @@ class location extends React.Component {
     // console.log(this.state.followedUsers);
   };
 
-
   getFollowingPosts = async () => {
     await this.getFollowedUsers().then(async () => {
-      
       let users = this.state.followedUsers;
       let allPosts = [];
-for (const eachUser of users) {
+      for (const eachUser of users) {
         await this.getProfilePic(eachUser).then(async () => {
           // console.log("Avatar:" + this.state.avatar);
           await this.firestoreUsersRef
@@ -222,7 +557,7 @@ for (const eachUser of users) {
             .get()
             .then(async (document) => {
               this.setState({ userData: document.data() });
-await this.firestorePostRef
+              await this.firestorePostRef
                 .doc(eachUser)
                 .collection("userPosts")
                 .orderBy("time", "desc")
@@ -241,7 +576,7 @@ await this.firestorePostRef
                       locName: doc.data().location.locationName,
                       postId: doc.data().postId,
                       timeStamp: doc.data().time,
-                   
+
                       locLatLng: "Address",
                     };
                     allPosts.push(article);
@@ -249,10 +584,10 @@ await this.firestorePostRef
                 });
               this.setState({ posts: allPosts });
             });
-        });      }
+        });
+      }
     });
   };
-
 
   getProfilePic = async (user) => {
     const firebaseProfilePic = await firebase
@@ -263,7 +598,7 @@ await this.firestorePostRef
       .getDownloadURL()
       .then((url) => {
         this.setState({ avatar: url });
-        console.log(this.state.avatar);
+        // console.log(this.state.avatar);
 
         return url;
       })
@@ -279,7 +614,8 @@ await this.firestorePostRef
             return "https://clinicforspecialchildren.org/wp-content/uploads/2016/08/avatar-placeholder.gif";
           // break;
         }
-        alert(error);
+        // alert(error);
+        console.log(error);
       });
   };
 
@@ -309,7 +645,8 @@ await this.firestorePostRef
             });
             return "https://clinicforspecialchildren.org/wp-content/uploads/2016/08/avatar-placeholder.gif";
         }
-        alert(error);
+        // alert(error);
+        console.log(error);
       });
 
     this.firestoreUsersRef
@@ -374,11 +711,135 @@ await this.firestorePostRef
     });
     this.setState({ heatMapData: data, postId: postTag });
     // console.log(this.state.heatMapData);
-    // console.log("oioioioio");
-    // // console.log(this.state.userData.location.lastSeen);
-    // console.log(data);
     // console.log(this.state.postId);
-    // console.log("1");
+  };
+
+  getHeatMapDataForPlaces = () => {
+
+    const markers = [];
+
+
+    firebase
+      .firestore()
+      .collection("placesRecommendations")
+      .doc(this.state.user)
+      .collection("recommendedPlaces")
+      .doc(this.state.user)
+      .onSnapshot((doc) => {
+        const res = doc.data();
+        res.places.map((element, index) => {
+          const marketObj = {};
+          // marketObj.id = element.id;
+          // marketObj.place_id = element.place_id;
+          // marketObj.name = element.name;
+           marketObj.marker = {
+              latitude: element.geometry.location.lat,
+              longitude: element.geometry.location.lng,
+            };
+
+          markers.push(marketObj);
+        });
+        let data = [];
+        let posts = markers;
+        posts.forEach((post) => {
+          let point = new google.maps.LatLng(post.marker.latitude, post.marker.longitude);
+          data.push(point);
+        });
+        this.setState({ getHeatMapDataForPlaces: data });
+        // console.log(this.state.getHeatMapDataForPlaces)
+    
+      });
+    
+  };
+
+  getSuggestedPlaces = () => {
+    const markers = [];
+    //NEARBY PLACES
+    // firebase
+    //   .firestore()
+    //   .collection("placesRecommendations")
+    //   .doc(this.state.user3)
+    //   .collection("recommendedPlaces")
+    //   .doc(this.state.user3)
+
+    firebase
+      .firestore()
+      .collection("userSuggestedPlaces")
+      .doc(this.state.user)
+      .onSnapshot((doc) => {
+        const res = doc.data();
+        res.places.map((element, index) => {
+          const marketObj = {};
+          marketObj.id = element.id;
+          // marketObj.icon = element.icon;
+          marketObj.place_id = element.place_id;
+          // marketObj.opening_hours = element.opening_hours;
+          // marketObj.photoURL=element.photos[0].getUrl();
+          marketObj.name = element.name;
+          // marketObj.photos = element.photos;
+          // marketObj.rating = element.rating;
+          // marketObj.vicinity = element.vicinity;
+          // marketObj.type = element.type;
+          marketObj.marker = {
+            latitude: element.marker.latitude,
+            longitude: element.marker.longitude,
+          };
+
+          markers.push(marketObj);
+
+          // if (marketObj.photos  ) {
+          //   console.log(
+          //     "ref ref ref ref: " + marketObj.photos[0].photo_reference
+          //   );
+          // }else console.log("no photototot")
+        });
+
+        this.setState({ userSuggestedPlaces: markers, getSuggPlaces: true });
+      });
+  };
+
+  getPlacesNearMe = () => {
+    const markers = [];
+
+
+    firebase
+      .firestore()
+      .collection("placesRecommendations")
+      .doc(this.state.user)
+      .collection("recommendedPlaces")
+      .doc(this.state.user)
+      .onSnapshot((doc) => {
+        const res = doc.data();
+        res.places.map((element, index) => {
+          const marketObj = {};
+          marketObj.id = element.id;
+          // marketObj.icon = element.icon;
+          marketObj.place_id = element.place_id;
+          // marketObj.opening_hours = element.opening_hours;
+          // marketObj.photoURL=element.photos[0].getUrl();
+          marketObj.name = element.name;
+          // marketObj.photos = element.photos;
+          // marketObj.rating = element.rating;
+          // marketObj.vicinity = element.vicinity;
+          // marketObj.type = element.type;
+           marketObj.marker = {
+              latitude: element.geometry.location.lat,
+              longitude: element.geometry.location.lng,
+            };
+
+          markers.push(marketObj);
+
+          // if (marketObj.photos  ) {
+          //   console.log(
+          //     "ref ref ref ref: " + marketObj.photos[0].photo_reference
+          //   );
+          // }else console.log("no photototot")
+        });
+
+        this.setState({ placesNearMe: markers, getPlacesNearMe: true });
+
+        // console.log(this.state.userSuggestedPlaces);
+      });
   };
 
   toggleModal = (state) => {
@@ -387,271 +848,8 @@ await this.firestorePostRef
     });
   };
 
-
-
   render() {
     const { loading, marks } = this.state;
-    const MapWrapper = withScriptjs(
-      withGoogleMap((props) => (
-        <GoogleMap
-          defaultZoom={10}
-          
-
-          // panTo={{
-          //   lat: this.state.markerPosition.lat,
-          //     lng: this.state.markerPosition.lng,
-          // }}
-          // defaultCenter={{ lat: 33.738045, lng: 73.084488 }}
-          defaultCenter={{
-            lat: this.state.mapPosition.lat,
-            lng: this.state.mapPosition.lng,
-          }}
-          getClickableIcons={true}
-          defaultOptions={{
-            styles: [
-              {
-                featureType: "all",
-                elementType: "all",
-                stylers: [
-                  { invert_lightness: true },
-                  { saturation: "-9" },
-                  { lightness: "0" },
-                  { visibility: "simplified" },
-                ],
-              },
-              {
-                featureType: "landscape.man_made",
-                elementType: "all",
-                stylers: [{ weight: "1.00" }],
-              },
-              {
-                featureType: "road.highway",
-                elementType: "all",
-                stylers: [{ weight: "0.49" }],
-              },
-              {
-                featureType: "road.highway",
-                elementType: "labels",
-                stylers: [
-                  { visibility: "on" },
-                  { weight: "0.01" },
-                  { lightness: "-7" },
-                  { saturation: "-35" },
-                ],
-              },
-              {
-                featureType: "road.highway",
-                elementType: "labels.text",
-                stylers: [{ visibility: "on" }],
-              },
-              {
-                featureType: "road.highway",
-                elementType: "labels.text.stroke",
-                stylers: [{ visibility: "off" }],
-              },
-              {
-                featureType: "road.highway",
-                elementType: "labels.icon",
-                stylers: [{ visibility: "on" }],
-              },
-            ],
-
-            scrollwheel: false,
-            streetViewControl: false,
-            disableDoubleClickZoom: false,
-            // ,mapTypeId: google.maps.MapTypeId.TERRAIN
-            // ,mapTypeId: google.maps.MapTypeId.ROADMAP
-            // mapTypeId: google.maps.MapTypeId.HYBRID,
-
-            // new stuff -->
-            panControl: true,
-            mapTypeControl: true,
-            panControlOptions: {
-              position: google.maps.ControlPosition.RIGHT_CENTER,
-            },
-            zoomControl: true,
-            zoomControlOptions: {
-              style: google.maps.ZoomControlStyle.LARGE,
-              position: google.maps.ControlPosition.RIGHT_CENTER,
-            },
-            scaleControl: false,
-            streetViewControl: false,
-            streetViewControlOptions: {
-              position: google.maps.ControlPosition.RIGHT_CENTER,
-            },
-          }}
-        >
-          {/* For Auto complete Search Box */}
-          {/* <Autocomplete
-            controlPosition={google.maps.ControlPosition.TOP}
-            style={{
-              boxSizing: `border-box`,
-              border: `1px solid transparent`,
-              width: `100%`,
-              height: `32px`,
-              marginTop: `27px`,
-              padding: `0 12px`,
-              borderRadius: `3px`,
-              boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-              fontSize: `14px`,
-              outline: `none`,
-              textOverflow: `ellipses`,
-            }}
-            onPlaceSelected={this.onPlaceSelected}
-            types={["(regions)"]}
-          /> */}
-
-          {/* <SearchBox
-            // ref={props.onSearchBoxMounted}
-            // bounds={props.bounds}
-            controlPosition={google.maps.ControlPosition.TOP}
-            // // onPlacesChanged={props.onPlacesChanged}
-            // onPlaceSelected={props.onPlaceSelected}
-            // onPlacesChanged={props.onPlaceSelected}
-            // // onPlaceSelected={this.onPlaceSelected}
-            // types={["(regions)"]}
-            onPlaceSelected={this.onPlaceSelected}
-            types={["(regions)"]}
-
-          >
-            <input
-              type="text"
-              placeholder="Enter a location"
-              style={{
-                boxSizing: `border-box`,
-                border: `1px solid transparent`,
-                width: `240px`,
-                height: `32px`,
-                marginTop: `27px`,
-                padding: `0 12px`,
-                borderRadius: `3px`,
-                boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-                fontSize: `14px`,
-                outline: `none`,
-                textOverflow: `ellipses`,
-              }}
-            />
-          </SearchBox> */}
-
-          {/*Marker*/}
-          {/* <Marker
-
-            options={{
-              icon: {
-                url: require("assets/img/icons/map/navigation.png"),
-                scaledSize: { width: 40, height: 40 },
-              },
-            }}
-            google={this.props.google}
-            // name={"Dolores park"}
-            draggable={true}
-            onDragEnd={this.onMarkerDragEnd}
-            position={{
-              lat: this.state.markerPosition.lat,
-              lng: this.state.markerPosition.lng,
-            }}
-          />
-          <Marker /> */}
-
-          {/* InfoWindow on top of marker */}
-          {/* <InfoWindow
-            onClose={this.onInfoWindowClose}
-            position={{
-              lat: this.state.markerPosition.lat + 0.0018,
-              lng: this.state.markerPosition.lng,
-            }}
-          >
-            <div>
-              <span style={{ padding: 0, margin: 0 }}>
-                {this.state.address}
-              </span>
-            </div>
-          </InfoWindow> */}
-
-          {this.state.showMyLoc ? (
-            <InfoWindow
-              onClick={() => {
-                this.hideMyLoc();
-              }}
-              onClose={this.onInfoWindowClose}
-              position={{
-                lat: props.getUserLat + 0.0018,
-                lng: props.getUserLong,
-              }}
-            >
-              <div>
-                <img
-                  height="50"
-                  width="50"
-                  style={{
-                    // width: "200px",
-                    // height: "200px",
-                    display: "block",
-                    "object-fit": "cover",
-                  }}
-                  alt="..."
-                  className="avatar"
-                  // src={this.state.userAvatar}
-                  src={
-                    "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
-                    this.state.user +
-                    ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d"
-                  }
-                />
-                <pre>{props.getUserLocation}</pre>
-              </div>
-            </InfoWindow>
-          ) : null}
-
-          {props.heatMapData.map((mark, index) => (
-            <Marker
-              onClick={() => {
-                this.setState({ defaultModal: true });
-                this.setState({ modalItem: this.state.posts[index] });
-              }}
-              position={mark}
-              options={{
-                icon: {
-                  url: require("assets/img/icons/map/marker.png"),
-                  scaledSize: { width: 40, height: 40 },
-                },
-              }}
-              title="Clickable marker"
-              animation="drop"
-              // animation={new google.maps.Animation}
-            ></Marker>
-          ))}
-
-          <HeatmapLayer
-            options={
-              { radius: 120 }
-              //   ,{ opacity: 1 },
-              // { maxIntensity: 200 },
-              // { //   gradient: [
-              //     "rgba(0, 255, 255, 0)",
-              //     "rgba(0, 255, 255, 1)",
-              //     "rgba(0, 191, 255, 1)",
-              //     "rgba(0, 127, 255, 1)",
-              //     "rgba(0, 63, 255, 1)",
-              //     "rgba(0, 0, 255, 1)",
-              //     "rgba(0, 0, 223, 1)",
-              //     "rgba(0, 0, 191, 1)",
-              //     "rgba(0, 0, 159, 1)",
-              //     "rgba(0, 0, 127, 1)",
-              //     "rgba(0, 0, 127, 1)",
-              //     "rgba(63, 0, 91, 1)",
-              //     "rgba(127, 0, 63, 1)",
-              //     "rgba(191, 0, 31, 1)",
-              //     "rgba(255, 0, 0, 1)"
-              //   ]
-              // }
-            }
-            data={props.heatMapData}
-          />
-          {/* <TrafficLayer   onLoad={onLoad}/> */}
-        </GoogleMap>
-      ))
-    );
 
     return (
       <>
@@ -686,37 +884,92 @@ await this.firestorePostRef
             </div>
           </section>
           <section className="section mt--300">
-            <Container className="mt--200 pb-5" fluid >
+            <Container className="mt--200 pb-5" fluid>
               <Card
-              
                 fluid
                 body
                 inverse
-                style={{ backgroundColor: "#333", borderColor: "#333", zoom:"60%" }}
+                style={{
+                  backgroundColor: "#333",
+                  borderColor: "#333",
+                  zoom: "70%",
+                }}
               >
                 <Container fluid>
                   <h1 className="display-3 text-white">Reactive Maps</h1>
                   <p className="lead text-white">
                     View your friend's posts on the map.
                   </p>
-                  <Button
-                    outline
-                    color="info"
-                    onClick={() => {
-                      this.showMyLoc();
-                    }}
-                  >
-                    Show my location!
-                  </Button>{" "}
+                  {this.state.showMyLoc ? (
+                      <Button
+                      //  outline
+                       color="info"
+                       onClick={() => {
+  this.setState({showMyLoc:false})                     }}
+                     >
+                      Show my location!
+                     </Button>
+                  ) : (
+                    <Button
+                      outline
+                      color="info"
+                      onClick={() => {
+                        this.showMyLoc();
+                      }}
+                    >
+                      Show my location!
+                    </Button>
+                  )}{" "}
+                  {this.state.getSuggPlaces ? (
+                     <Button
+                    //  outline
+                     color="danger"
+                     onClick={() => {
+this.setState({getSuggPlaces:false})                     }}
+                   >
+                     Show me suggested places!
+                   </Button>
+                  ) : (
+                    <Button
+                      outline
+                      color="danger"
+                      onClick={() => {
+                        this.getSuggestedPlaces();
+                      }}
+                    >
+                      Show me suggested places!
+                    </Button>
+                  )}{" "}
+                  {this.state.getPlacesNearMe ? (
+                     <Button
+                    //  outline
+                     color="success"
+                     onClick={() => {
+                      this.setState({getPlacesNearMe:false})                    
+                     }}
+                   >
+                     Show places near me!
+                   </Button>
+                  ) : (
+                    <Button
+                      outline
+                      color="success"
+                      onClick={() => {
+                        this.getPlacesNearMe();
+                      }}
+                    >
+                      Show places near me!
+                    </Button>
+                  )}
                 </Container>
               </Card>
-              <Row style={{zoom:"65%"}}>
+              <Row style={{ zoom: "65%" }}>
                 <div
                   className="col"
                   style={{ display: loading ? "none" : "block" }}
                 >
                   <Card className="shadow border-0 shadow">
-                    <MapWrapper
+                    <this.MapWrapper
                       googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A&libraries=visualization,places"
                       loadingElement={<div style={{ height: `100%` }} />}
                       heatMapData={this.state.heatMapData}
@@ -748,7 +1001,7 @@ await this.firestorePostRef
 
         <Modal
           fluid
-          size="lg"
+          size="xs"
           isOpen={this.state.defaultModal}
           toggle={() => this.toggleModal("defaultModal")}
         >

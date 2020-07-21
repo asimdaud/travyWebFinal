@@ -137,9 +137,9 @@ class FriendReq extends React.Component {
         // <div className="px-4 border-top">
         <h1
           // className="description"
-          className="text-white ml-auto description"
+          className="text-white ml-auto description font-italic justify-content-center"
         >
-          No new friend requests
+          No new friend requests :(
         </h1>
 
         // </div>
