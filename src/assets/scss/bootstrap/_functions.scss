@@ -68,7 +68,7 @@
   @return map-get($colors, $key);
 }
 
-@function theme-color($key: "primary") {
+@function theme-color($key: "info") {
   @return map-get($theme-colors, $key);
 }
 

@@ -17,24 +17,25 @@ class SimpleFooter extends React.Component {
   render() {
     return (
       <>
-        <footer className=" footer">
           <Container>
-            <Row className=" align-items-center justify-content-md-between">
-              <Col md="6">
-                <div className=" copyright">
+
+                <div className="copyright"
+                 style={{
+backgroundColor:"transparent",color:"white", width:"100%", textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"
+                }}>
                   © {new Date().getFullYear()}{" "}
                   <Link
                    to="/timeline"
-                    
+                   style={{color:"white"}}
+
                   >
                     Travy social network
                   </Link>
                   
                 </div>
-              </Col>
-            </Row>
+<br/>                
           </Container>
-        </footer>
+
       </>
     );
   }

@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import "assets/vendor/nucleo/css/nucleo.css";
 import "assets/vendor/font-awesome/css/font-awesome.min.css";
 import "assets/scss/argon-design-system-react.scss";
+
 import Login from "views/examples/Login.jsx";
 import Profile from "views/examples/Profile.jsx";
 import Register from "views/examples/Register.jsx";
@@ -14,28 +15,14 @@ import PrivateRoute from "./privateRoute";
 import Modals from "./components/Modal/Modals";
 import FriendsPage from "views/examples/FirendsPage";
 import Group from "views/examples/Group.jsx";
-// import Maps from "views/examples/Maps.jsx";
-// import Maps2 from "views/examples/Maps2";
 import Loc from "views/examples/location";
-import postLoc from "views/examples/postLoc";
 import Chat from "views/examples/chat";
 import FriendReq from "views/examples/FriendReq";
-
-import Location2 from "views/examples/location2";
-import Mapbox from "views/examples/Mapbox";
 import ExploreAroundMe from "views/examples/ExploreAroundMe";
 import PeopleYouMayKnow from "views/examples/PeopleYouMayKnow";
-
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
-      {/* <PrivateRoute
-        path="/modal"
-        exact
-        render={props => <Modals {...props} />}
-      /> */}
-
-      {/* <Route path="/" exact render={props => <Timeline {...props} />} /> */}
 
       <PrivateRoute path="/heatmap" exact render={(props) => <Loc {...props} />} />
       <Route path="/login" exact render={(props) => <Login {...props} />} />
@@ -56,40 +43,16 @@ ReactDOM.render(
         render={(props) => <Group {...props} />}
         exact
       />
-      {/* <PrivateRoute
-        path="/fr"
-        render={(props) => <FriendReq {...props} />}
-        exact
-      /> */}
       <PrivateRoute
         path="/edit-profile"
         render={(props) => <EditProfile {...props} />}
         exact
       />
-      {/* <PrivateRoute
-        path="/Maps"
-        render={props => <Maps {...props} />}
-        exact
-      /> */}
-      {/* <PrivateRoute
-        path="/Maps2"
-        render={props => <Maps2 {...props} />}
-        exact  
-      />
-       */}
-
       <Route
         path="/register"
         exact
         render={(props) => <Register {...props} />}
       />
-
-      {/* <Route path="/postLoc" exact render={(props) => <postLoc {...props} />} /> */}
-      {/* <Route
-        path="/timeline"
-        exact
-        render={props => <Timeline {...props} />}
-      /> */}
       <PrivateRoute
         path="/chat"
         exact
@@ -110,8 +73,6 @@ ReactDOM.render(
         render={(props) => <Timeline {...props} />}
         exact
       />
-      {/* <Redirect to="" render={props => <Login {...props} />}
-        exact /> */}
       <Redirect to="/profile" />
     </Switch>
   </BrowserRouter>,

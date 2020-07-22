@@ -19,23 +19,28 @@ import {
 import { DeleteOutline } from "@material-ui/icons";
 
 class CommentItem extends React.Component {
+  ismounted=false;
   state = {
     currentUserId: JSON.parse(localStorage.getItem("uid")),
+    username:"",
     profilePic:
       "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg",
     commentDeleted: false,
   };
 
   componentWillMount = () => {
+    this.ismounted=false;
     // this.getProfilePic();
   };
 
-  // componentWillUnmount=()=>{
-  //   this.getProfilePic();
-  // }
+  componentWillUnmount=()=>{
+    this.ismounted=false;
+  }
 
   componentDidMount = () => {
+    this.ismounted=true;
     this.getProfilePic();
+    this.getUserId();
   };
 
   getProfilePic = (friendId) => {
@@ -53,6 +58,23 @@ class CommentItem extends React.Component {
       .catch((error) => {
         console.log("No picture found for: " + item.commentData.userId);
       });
+  };
+
+  getUserId = () => {
+    const { item } = this.props;
+    firebase
+    .firestore()
+    .collection("users")
+    .doc(item.commentData.userId)
+    .onSnapshot((doc) => {
+      const res = doc.data();
+
+      if (res != null) {
+        this.setState({
+          username: res.username
+        });
+      }
+    });
   };
 
   deleteComment = async () => {
@@ -99,7 +121,7 @@ class CommentItem extends React.Component {
           <div className="media-body">
             <div className="media-comment-text">
               <h4>
-                <Badge color="secondary">{item.commentData.username}</Badge>
+                <Badge color="secondary">{this.state.username}</Badge>
               </h4>
               <p className="text-sm lh-160">{item.commentData.comment}</p>
             </div>

@@ -76,6 +76,7 @@ class Post extends React.Component {
 
 
   componentDidMount = () => {
+    this.renderAvatar();
     this.getProfilePic();
     const { item } = this.props;
 
@@ -579,7 +580,8 @@ class Post extends React.Component {
               // className="mb-0 text-black font-weight-bold"
               className="justify-content-between align-items-center"
               style={{
-                backgroundColor: "#F7F7F7",
+                // backgroundColor: "#F7F7F7",
+                backgroundColor:"rgba(var(--b3f,250,250,250),1)"
                 //  MozBorderRadiusBottomleft:"20px",MozBorderRadiusBottomright:"20px"
               }}
             >
@@ -602,7 +604,7 @@ class Post extends React.Component {
                   width: "100%",
                   height: "620px",
                   display: "block",
-                  "object-fit": "cover",
+                  objectFit: "cover",
                   zoom: "90%",
                 }}
               />

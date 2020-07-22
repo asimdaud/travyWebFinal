@@ -10053,7 +10053,7 @@ textarea[resize="horizontal"] {
     .section-shaped .shape-skew span {
       transform: skew(4deg); }
   .section-shaped .shape-primary {
-    background: linear-gradient(150deg, #281483 15%, #8f6ed5 70%, #d782d9 94%); }
+    background: linear-gradient(150deg, #f821db 15%, #f0ad31 70%, #ff5953 94%); }
     .section-shaped .shape-primary :nth-child(1) {
       background: #53f; }
     .section-shaped .shape-primary :nth-child(2) {

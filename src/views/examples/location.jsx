@@ -11,11 +11,19 @@ import {
   Circle,
   InfoWindow,
 } from "react-google-maps";
-
+import Rater from "react-rater";
 // import Geosuggest from "react-geosuggest";
+import BadgeLabel from "../../components/Badge";
 
 // reactstrap components
-import { Card, Container, Row, Modal, Button, Jumbotron } from "reactstrap";
+import { Card, Container, Row, Modal, Button, Jumbotron ,   Badge,
+  CardBody,
+  CardSubtitle,
+  CardTitle,
+  UncontrolledCarousel,
+  CardLink,
+  CardText,
+} from "reactstrap";
 import Post from "../../components/post";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 // import { HeatmapLayer } from '@react-google-maps/api';
@@ -29,6 +37,8 @@ import Timeline from "../examples/Timeline";
 import { Redirect, Link } from "react-router-dom";
 import Autocomplete from "react-google-autocomplete";
 import Geocode from "react-geocode";
+import DemoNavbar from "components/Navbars/DemoNavbar";
+// import UserNavbar from "components/Navbars/UserNavbar";
 Geocode.setApiKey("AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A");
 Geocode.enableDebug();
 
@@ -270,8 +280,13 @@ class location extends React.Component {
         ))}
 
         {this.state.getSuggPlaces
-          ? this.state.userSuggestedPlaces.map((mark, index) => (
+          ? this.state.userSuggestedPlaces.map((mark) => (
               <Marker
+                onClick={() => {
+                  this.setState({ notificationModal: true });
+                  this.renderPlaceDetails();
+                  console.log(this.state.placeDetails);
+                }}
                 position={{
                   lat: mark.marker.latitude,
                   lng: mark.marker.longitude,
@@ -336,12 +351,13 @@ class location extends React.Component {
           data={props.heatMapData}
         />
 
-<HeatmapLayer
+        <HeatmapLayer
           options={
-            { radius: 99 }
-              ,{ opacity: 0.5 },
+            ({ radius: 99 },
+            { opacity: 0.5 },
             { maxIntensity: 200 },
-            {   gradient: [
+            {
+              gradient: [
                 "rgba(0, 255, 255, 0)",
                 "rgba(0, 255, 255, 1)",
                 "rgba(0, 191, 255, 1)",
@@ -356,14 +372,12 @@ class location extends React.Component {
                 "rgba(63, 0, 91, 1)",
                 "rgba(127, 0, 63, 1)",
                 "rgba(191, 0, 31, 1)",
-                "rgba(255, 0, 0, 1)"
-              ]
-            }
+                "rgba(255, 0, 0, 1)",
+              ],
+            })
           }
           data={this.state.getHeatMapDataForPlaces}
-
         />
-
 
         {/* <TrafficLayer   onLoad={onLoad}/> */}
       </GoogleMap>
@@ -391,7 +405,9 @@ class location extends React.Component {
     userLatitude: 0,
     markerImage: "",
     modalItem: "",
-    getHeatMapDataForPlaces:[],
+    itemState: [],
+    placeDetails: {},
+    getHeatMapDataForPlaces: [],
     // address: "",
     // city: "",
     loading: true,
@@ -438,7 +454,6 @@ class location extends React.Component {
    */
   componentDidMount() {
     this.getFollowingPosts().then(() => {
-     
       this.getHeatMapData();
       this.getUserLastSeen();
       this.getHeatMapDataForPlaces();
@@ -482,6 +497,56 @@ class location extends React.Component {
   //       return false;
   //     }
   //   };
+
+  getPlaceDetails = (place_id) => {
+    const baseUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=`;
+    // const placeId = JSON.parse(localStorage.getItem("placeId")) ;
+    // const placeId = place_id;
+    const fields =
+      "&fields=name,types,geometry,website,photos,price_level,rating,url,formatted_phone_number,formatted_address";
+    const api = `&key=${"AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A"}`;
+
+    return `${baseUrl}${place_id}${fields}${api}`;
+  };
+
+  
+  renderPlaceDetails = () => {
+    const placeId = JSON.parse(localStorage.getItem("placeId"));
+    const url = this.getPlaceDetails(placeId);
+    const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
+    // fetch(url,  { headers: new HttpHeaders({'Authorization': 'Bearer '})})
+    // fetch(url, { mode: 'no-cors'})
+    
+
+    fetch(PROXY_URL + url)
+      .then((res) => res.json())
+      .then((res) => {
+        const marketObj = {};
+        marketObj.name = res.result.name ? res.result.name : "N/A";
+        marketObj.types = res.result.types ? res.result.types : "N/A";
+        // marketObj.website = res.result.website ? res.result.website : "N/A";
+        marketObj.photos = res.result.photos ? res.result.photos : "N/A";
+        // marketObj.price_level = res.result.price_level
+        //   ? res.result.price_level
+        //   : "N/A";
+        marketObj.rating = res.result.rating ? res.result.rating : "N/A";
+        marketObj.url = res.result.url ? res.result.url : "N/A";
+        marketObj.formatted_phone_number = res.result.formatted_phone_number
+          ? res.result.formatted_phone_number
+          : "N/A";
+        marketObj.formatted_address = res.result.formatted_address
+          ? res.result.formatted_address
+          : "N/A";
+        // marketObj.marker = {
+        //   latitude: res.result.geometry.location.lat,
+        //   longitude: res.result.geometry.location.lng,
+        // };
+        // markers.push(marketObj);
+        this.setState({ placeDetails: marketObj });
+        console.log(this.state.placeDetails);
+      });
+  };
+
   /**
    * This Event triggers when the marker window is closed
    *
@@ -715,9 +780,7 @@ class location extends React.Component {
   };
 
   getHeatMapDataForPlaces = () => {
-
     const markers = [];
-
 
     firebase
       .firestore()
@@ -732,24 +795,25 @@ class location extends React.Component {
           // marketObj.id = element.id;
           // marketObj.place_id = element.place_id;
           // marketObj.name = element.name;
-           marketObj.marker = {
-              latitude: element.geometry.location.lat,
-              longitude: element.geometry.location.lng,
-            };
+          marketObj.marker = {
+            latitude: element.geometry.location.lat,
+            longitude: element.geometry.location.lng,
+          };
 
           markers.push(marketObj);
         });
         let data = [];
         let posts = markers;
         posts.forEach((post) => {
-          let point = new google.maps.LatLng(post.marker.latitude, post.marker.longitude);
+          let point = new google.maps.LatLng(
+            post.marker.latitude,
+            post.marker.longitude
+          );
           data.push(point);
         });
         this.setState({ getHeatMapDataForPlaces: data });
         // console.log(this.state.getHeatMapDataForPlaces)
-    
       });
-    
   };
 
   getSuggestedPlaces = () => {
@@ -801,7 +865,6 @@ class location extends React.Component {
   getPlacesNearMe = () => {
     const markers = [];
 
-
     firebase
       .firestore()
       .collection("placesRecommendations")
@@ -822,10 +885,10 @@ class location extends React.Component {
           // marketObj.rating = element.rating;
           // marketObj.vicinity = element.vicinity;
           // marketObj.type = element.type;
-           marketObj.marker = {
-              latitude: element.geometry.location.lat,
-              longitude: element.geometry.location.lng,
-            };
+          marketObj.marker = {
+            latitude: element.geometry.location.lat,
+            longitude: element.geometry.location.lng,
+          };
 
           markers.push(marketObj);
 
@@ -836,10 +899,76 @@ class location extends React.Component {
           // }else console.log("no photototot")
         });
 
-        this.setState({ placesNearMe: markers, getPlacesNearMe: true });
+        this.setState({
+          placesNearMe: markers,
+         
+          getPlacesNearMe: true,
+        });
 
         // console.log(this.state.userSuggestedPlaces);
       });
+  };
+
+
+  renderTypes = () => {
+    if (this.state.placeDetails.types) {
+      //   return(
+      //  <div>  { this.state.placeDetails.types.map((data, index) => {
+      //     <BadgeLabel item={data} key={index} />
+      //   })}
+      //   </div>
+      //   );}
+      return (
+        <div>
+          {this.state.placeDetails.types.map((data, index) => (
+            <BadgeLabel item={data} key={index} />
+            // <Post item={post} key={postindex} />
+          ))}
+        </div>
+      );
+    }
+  };
+
+  renderRating = () => {
+    const { item } = this.props;
+    return (
+      <>
+        <Rater
+          total={5}
+          rating={this.state.placeDetails.rating}
+          interactive={false}
+        />
+      </>
+    );
+  };
+
+  renderImage = (photo) => {
+    const baseUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=`;
+    const pr = photo.photo_reference;
+    const api = `&key=${"AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A"}`;
+    return `${baseUrl}${pr}${api}`;
+  };
+
+  renderCarousel = () => {
+    let photos = [];
+
+    if (this.state.placeDetails.photos) {
+      this.state.placeDetails.photos.map((element, index) => {
+        let sources = {};
+        sources = this.renderImage(element);
+        let key = index;
+
+        photos.push(sources);
+      });
+
+      let items = [];
+      let pics = {};
+
+      items = photos.map((data, index) => ({
+        src: data,
+      }));
+      this.setState({ itemState: items, carousel: true });
+    }
   };
 
   toggleModal = (state) => {
@@ -854,63 +983,50 @@ class location extends React.Component {
     return (
       <>
         <UserNavbar />
-        <main className="profile-page" ref="main">
-          <section className="section-profile-cover section-shaped my-0">
-            {/* Circles background */}
-            <div className="shape shape-style-1 shape-default alpha-4">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            {/* SVG separator */}
-            <div className="separator separator-bottom separator-skew">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="none"
-                version="1.1"
-                viewBox="0 0 2560 100"
-                x="0"
-                y="0"
-              >
-                <polygon
-                  className="fill-white"
-                  points="2560 0 2560 100 0 100"
-                />
-              </svg>
-            </div>
-          </section>
-          <section className="section mt--300">
-            <Container className="mt--200 pb-5" fluid>
+        <main
+          className="profile-page"
+          ref="main"
+          style={{
+            // backgroundColor: "#f0f3f4"
+            backgroundImage:
+              "linear-gradient(to left bottom, #e4efe9, #d9ede8, #cfeae9, #c6e6ed, #c0e2f1, #bcdef2, #badaf3, #bad5f4, #b7d1f2, #b5ccf1, #b3c8ef, #b1c3ed)",
+          }}
+        >
+          <section
+            className="section section-blog-info"
+            style={{ marginTop: "20px" }}
+          >
+            <Container className="pb-5" fluid>
               <Card
-                fluid
-                body
-                inverse
+                // fluid
+                // body
+                // inverse
                 style={{
-                  backgroundColor: "#333",
-                  borderColor: "#333",
+                  backgroundColor: "transparent",
+                  // borderColor: "#333",
                   zoom: "70%",
+
+                  // opacity:"20%",
+                  border: "0",
+                  paddingBottom: "10px",
                 }}
               >
                 <Container fluid>
-                  <h1 className="display-3 text-white">Reactive Maps</h1>
-                  <p className="lead text-white">
-                    View your friend's posts on the map.
-                  </p>
+                  <h1 className="display-3">Reactive Maps</h1>
+                  <p className="lead">View your friend's posts on the map.</p>
                   {this.state.showMyLoc ? (
-                      <Button
+                    <Button
                       //  outline
-                       color="info"
-                       onClick={() => {
-  this.setState({showMyLoc:false})                     }}
-                     >
+                      color="info"
+                      onClick={() => {
+                        this.setState({ showMyLoc: false });
+                      }}
+                    >
                       Show my location!
-                     </Button>
+                    </Button>
                   ) : (
                     <Button
+                      style={{ color: "black" }}
                       outline
                       color="info"
                       onClick={() => {
@@ -921,17 +1037,20 @@ class location extends React.Component {
                     </Button>
                   )}{" "}
                   {this.state.getSuggPlaces ? (
-                     <Button
-                    //  outline
-                     color="danger"
-                     onClick={() => {
-this.setState({getSuggPlaces:false})                     }}
-                   >
-                     Show me suggested places!
-                   </Button>
+                    <Button
+                      //  outline
+
+                      color="danger"
+                      onClick={() => {
+                        this.setState({ getSuggPlaces: false });
+                      }}
+                    >
+                      Show me suggested places!
+                    </Button>
                   ) : (
                     <Button
                       outline
+                      style={{ color: "black" }}
                       color="danger"
                       onClick={() => {
                         this.getSuggestedPlaces();
@@ -941,17 +1060,19 @@ this.setState({getSuggPlaces:false})                     }}
                     </Button>
                   )}{" "}
                   {this.state.getPlacesNearMe ? (
-                     <Button
-                    //  outline
-                     color="success"
-                     onClick={() => {
-                      this.setState({getPlacesNearMe:false})                    
-                     }}
-                   >
-                     Show places near me!
-                   </Button>
+                    <Button
+                      //  outline
+
+                      color="success"
+                      onClick={() => {
+                        this.setState({ getPlacesNearMe: false });
+                      }}
+                    >
+                      Show places near me!
+                    </Button>
                   ) : (
                     <Button
+                      style={{ color: "black" }}
                       outline
                       color="success"
                       onClick={() => {
@@ -963,6 +1084,7 @@ this.setState({getSuggPlaces:false})                     }}
                   )}
                 </Container>
               </Card>
+              <br />
               <Row style={{ zoom: "65%" }}>
                 <div
                   className="col"
@@ -997,6 +1119,7 @@ this.setState({getSuggPlaces:false})                     }}
               </Row>
             </Container>
           </section>
+          <SimpleFooter />
         </main>
 
         <Modal
@@ -1007,7 +1130,102 @@ this.setState({getSuggPlaces:false})                     }}
         >
           {this.state.modalItem && <Post item={this.state.modalItem} />}
         </Modal>
-        <SimpleFooter />
+
+        <Modal
+          fluid
+          size="md"
+          // isOpen={this.state.placesModal}
+          // toggle={() => this.toggleModal("placesModal")}
+          isOpen={this.state.notificationModal}
+          toggle={() => this.toggleModal("notificationModal")}
+>
+          <Card
+            // body inverse
+            style={{
+              backgroundColor: "#F2F2F2",
+              borderColor: "#F2F2F2",
+              //  padding:"1px"
+            }}
+          >
+            <div
+              className="rounded"
+              style={{
+                // width: "100%",
+                // height: "600px",
+                display: "inline-block",
+                objectFit: "cover",
+                overflow: "auto",
+                zoom: "50%",
+              }}
+            >
+              {this.state.carousel && (
+                <UncontrolledCarousel
+                  indicators={true}
+                  controls={true}
+                  items={this.state.itemState}
+                />
+              )}
+            </div>
+            <CardBody className="justify-content-center">
+              <CardTitle>{this.state.placeDetails.name}</CardTitle>
+              <CardSubtitle>
+                <p className="description text-capitalize">
+                  {" "}
+                  {this.state.placeDetails.formatted_address}
+                </p>
+                {this.renderRating()}
+              </CardSubtitle>
+            </CardBody>
+
+            <CardBody>
+              <h6 className="description">Place Type: </h6>
+              {this.renderTypes()}
+              <CardText>
+                <br />
+                {!this.state.placeDetails.price_level != "N/A" && (
+                  <>
+                    <h6 className="description">Price Level: </h6>
+                    {this.state.placeDetails.price_level}
+                  </>
+                )}
+              </CardText>
+              {this.state.placeDetails.formatted_phone_number != "N/A" && (
+                <CardText>
+                  <i className="ni ni-mobile-button" />{" "}
+                  {this.state.placeDetails.formatted_phone_number}
+                </CardText>
+              )}
+
+              <CardLink
+                href={this.state.placeDetails.website}
+                style={{ fontSize: "12px" }}
+              >
+                {" "}
+                <i className="ni ni-pin-3" /> View their website
+              </CardLink>
+
+              <CardLink
+                href={this.state.placeDetails.url}
+                style={{ fontSize: "12px" }}
+              >
+                {" "}
+                <i className="ni ni-square-pin" /> More on Google Maps
+              </CardLink>
+            </CardBody>
+            {!this.state.carousel && (
+              <Button
+                // className="mr-4"
+                color="info"
+                size="sm"
+                onClick={() => {
+                  this.renderCarousel();
+                }}
+              >
+                View Photos
+              </Button>
+            )}
+          </Card>
+        </Modal>
       </>
     );
   }

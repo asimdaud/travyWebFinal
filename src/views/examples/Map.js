@@ -424,93 +424,107 @@ class Map extends React.Component {
   };
   // <script crossorigin src="https://maps.googleapis.com/maps/api/place/details/json?"></script>
 
-  render() {
-    const AsyncMap = withScriptjs(
-      withGoogleMap((props) => (
-        <GoogleMap
+  AsyncMap = withScriptjs(
+    withGoogleMap((props) => (
+      <GoogleMap
+        panTo={{
+          lat: JSON.parse(localStorage.getItem("lat"))
+            ? JSON.parse(localStorage.getItem("lat"))
+            : this.state.markerPosition.lat,
+          lng: JSON.parse(localStorage.getItem("lon"))
+            ? JSON.parse(localStorage.getItem("lon"))
+            : this.state.markerPosition.lng,
+        }}
+        google={this.props.google}
+        defaultZoom={this.props.zoom}
+        defaultCenter={{
+          lat: JSON.parse(localStorage.getItem("lat"))
+            ? JSON.parse(localStorage.getItem("lat"))
+            : this.state.markerPosition.lat,
+          lng: JSON.parse(localStorage.getItem("lon"))
+            ? JSON.parse(localStorage.getItem("lon"))
+            : this.state.markerPosition.lng,
+        }}
+        setCenter={{lat: JSON.parse(localStorage.getItem("lat"))
+        ? JSON.parse(localStorage.getItem("lat"))
+        : this.state.markerPosition.lat,
+      lng: JSON.parse(localStorage.getItem("lon"))
+        ? JSON.parse(localStorage.getItem("lon"))
+        : this.state.markerPosition.lng,}}
+        styles={this.props.styles}
+        options={this.props.options}
+      >
+        {/* For Auto complete Search Box */}
+        <Autocomplete
+          style={{
+            width: "100%",
+            height: "40px",
+            paddingLeft: "16px",
+            marginTop: "2px",
+            marginBottom: "100px",
+          }}
+          onPlaceSelected={this.onPlaceSelected}
+          types={["(regions)"]}
+        />
+        {/*Marker*/}
+        <Marker
+          options={{
+            icon: {
+              url: require("assets/img/icons/map/location-pin.png"),
+              scaledSize: { width: 40, height: 40 },
+            },
+          }}
           google={this.props.google}
-          defaultZoom={this.props.zoom}
-          defaultCenter={{
+          name={this.markerExplore}
+          draggable={false}
+          onDragEnd={this.onMarkerDragEnd}
+          position={{
+            // lat: this.state.markerPosition.lat,
+            // lng: this.state.markerPosition.lng,
             lat: JSON.parse(localStorage.getItem("lat"))
               ? JSON.parse(localStorage.getItem("lat"))
               : this.state.markerPosition.lat,
+
             lng: JSON.parse(localStorage.getItem("lon"))
               ? JSON.parse(localStorage.getItem("lon"))
               : this.state.markerPosition.lng,
           }}
-          styles={this.props.styles}
-          options={this.props.options}
+          onClick={() => {
+            this.setState({ defaultModal: true });
+            this.renderPlaceDetails();
+            // this.setState({ modalItem: this.state.posts[index] });
+          }}
+        />
+        <Marker />
+        {/* InfoWindow on top of marker */}
+        <InfoWindow
+          onClose={this.onInfoWindowClose}
+          position={{
+            // lat: JSON.parse(localStorage.getItem("lat")) + 0.0018,
+            // lng: JSON.parse(localStorage.getItem("lon"))
+
+            lat: JSON.parse(localStorage.getItem("lat"))
+              ? JSON.parse(localStorage.getItem("lat")) + 0.0018
+              : this.state.markerPosition.lat + 0.0018,
+            lng: JSON.parse(localStorage.getItem("lon"))
+              ? JSON.parse(localStorage.getItem("lon"))
+              : this.state.markerPosition.lng,
+          }}
         >
-          {/* For Auto complete Search Box */}
-          <Autocomplete
-            style={{
-              width: "100%",
-              height: "40px",
-              paddingLeft: "16px",
-              marginTop: "2px",
-              marginBottom: "100px",
-            }}
-            onPlaceSelected={this.onPlaceSelected}
-            types={["(regions)"]}
-          />
-          {/*Marker*/}
-          <Marker
-            options={{
-              icon: {
-                url: require("assets/img/icons/map/location-pin.png"),
-                scaledSize: { width: 40, height: 40 },
-              },
-            }}
-            google={this.props.google}
-            name={this.markerExplore}
-            draggable={false}
-            onDragEnd={this.onMarkerDragEnd}
-            position={{
-              // lat: this.state.markerPosition.lat,
-              // lng: this.state.markerPosition.lng,
-              lat: JSON.parse(localStorage.getItem("lat"))
-                ? JSON.parse(localStorage.getItem("lat"))
-                : this.state.markerPosition.lat,
+          <div>
+            <span style={{ padding: 0, margin: 0 }}>
+              {/* {this.state.address} */}
+              {JSON.parse(localStorage.getItem("place"))
+                ? JSON.parse(localStorage.getItem("place"))
+                : "N/A"}
+            </span>
+          </div>
+        </InfoWindow>
+      </GoogleMap>
+    ))
+  );
 
-              lng: JSON.parse(localStorage.getItem("lon"))
-                ? JSON.parse(localStorage.getItem("lon"))
-                : this.state.markerPosition.lng,
-            }}
-            onClick={() => {
-              this.setState({ defaultModal: true });
-              this.renderPlaceDetails();
-              // this.setState({ modalItem: this.state.posts[index] });
-            }}
-          />
-          <Marker />
-          {/* InfoWindow on top of marker */}
-          <InfoWindow
-            onClose={this.onInfoWindowClose}
-            position={{
-              // lat: JSON.parse(localStorage.getItem("lat")) + 0.0018,
-              // lng: JSON.parse(localStorage.getItem("lon"))
-
-              lat: JSON.parse(localStorage.getItem("lat"))
-                ? JSON.parse(localStorage.getItem("lat")) + 0.0018
-                : this.state.markerPosition.lat + 0.0018,
-              lng: JSON.parse(localStorage.getItem("lon"))
-                ? JSON.parse(localStorage.getItem("lon"))
-                : this.state.markerPosition.lng,
-            }}
-          >
-            <div>
-              <span style={{ padding: 0, margin: 0 }}>
-                {/* {this.state.address} */}
-                {JSON.parse(localStorage.getItem("place"))
-                  ? JSON.parse(localStorage.getItem("place"))
-                  : "N/A"}
-              </span>
-            </div>
-          </InfoWindow>
-        </GoogleMap>
-      ))
-    );
-
+  render() {
     let map;
     if (this.props.center.lat !== undefined) {
       map = (
@@ -612,10 +626,10 @@ class Map extends React.Component {
               </CardBody>
 
               <CardBody>
-              <h6 className="description">Place Type: </h6>
+                <h6 className="description">Place Type: </h6>
                 {this.renderTypes()}
                 <CardText>
-                  <br/>
+                  <br />
                   {!this.state.placeDetails.price_level != "N/A" && (
                     <>
                       <h6 className="description">Price Level: </h6>
@@ -728,7 +742,7 @@ class Map extends React.Component {
 
             </Card> */}
           </Modal>
-          <AsyncMap
+          <this.AsyncMap
             googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaUWUZCAN9s7X7CvNVOEm6t4lQ7ZKE-3A&libraries=visualization,places"
             loadingElement={<div style={{ height: `100%` }} />}
             containerElement={<div style={{ height: this.props.height }} />}

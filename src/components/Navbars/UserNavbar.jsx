@@ -23,8 +23,8 @@ import {
   // TabContent,
   // TabPane,
   // UncontrolledTooltip,
-  // Card,
-  // CardBody,
+  Card,
+  CardBody,
   Input,
   InputGroup,
   InputGroupAddon,
@@ -289,7 +289,7 @@ class UserNavbar extends React.Component {
         </InputGroupAddon>
         <input
           className="form-control-alternative"
-          placeholder="Search"
+          placeholder=" Search"
           type="text"
           // onChange={this.textInput}
           // value={this.state.searchWord}
@@ -305,9 +305,9 @@ class UserNavbar extends React.Component {
   }
 
   componentDidMount() {
-    let headroom = new Headroom(document.getElementById("navbar-main"));
-    // initialise
-    headroom.init();
+    // let headroom = new Headroom(document.getElementById("navbar-main"));
+    // // initialise
+    // headroom.init();
     // this.checkReqNotification();
     this.renderUserItem();
     this.renderSearchBar();
@@ -315,48 +315,52 @@ class UserNavbar extends React.Component {
   render() {
     return (
       <>
-        <header className="header-global">
-          <Navbar
-            className="navbar-main navbar-transparent navbar-light headroom"
-            expand="lg"
-            id="navbar-main"
-          >
-            <Container>
-              <NavbarBrand className="mr-lg-5" to="/home" tag={Link}>
-                <img alt="..." src={require("assets/img/brand/logo.png")} />
-              </NavbarBrand>
-              <button className="navbar-toggler" id="navbar_global">
-                <span className="navbar-toggler-icon" />
-              </button>
-              <UncontrolledCollapse navbar toggler="#navbar_global">
-                <div className="navbar-collapse-header">
-                  <Row>
-                    <Col className="collapse-brand" xs="6">
-                      <Link to="/home">
-                        <img
-                          alt="..."
-                          src={require("assets/img/brand/logo.png")}
-                        />
-                      </Link>
-                    </Col>
-                    <Col className="collapse-close" xs="6">
-                      <button className="navbar-toggler" id="navbar_global">
-                        <span />
-                        <span />
-                      </button>
-                    </Col>
-                  </Row>
-                </div>
+        <Navbar
+          className="navbar-main navbar-transparent navbar-light headroom"
+          expand="lg"
+          id="navbar-main"
+          style={{
+            padding: "0px",
+            // borderBottom: "0.001rem solid black",
+            // backgroundColor: "#f0f3f4",
+          }}
+        >
+          <Container>
+            <NavbarBrand className="mr-lg-5" to="/home" tag={Link}>
+              <img alt="..." src={require("assets/img/brand/logo.png")} />
+            </NavbarBrand>
+            <button className="navbar-toggler" id="navbar_global">
+              <span className="navbar-toggler-icon" />
+            </button>
+            <UncontrolledCollapse navbar toggler="#navbar_global">
+              <div className="navbar-collapse-header">
+                <Row>
+                  <Col className="collapse-brand" xs="6">
+                    <Link to="/home">
+                      <img
+                        alt="..."
+                        src={require("assets/img/brand/logo.png")}
+                      />
+                    </Link>
+                  </Col>
+                  <Col className="collapse-close" xs="6">
+                    <button className="navbar-toggler" id="navbar_global">
+                      <span />
+                      <span />
+                    </button>
+                  </Col>
+                </Row>
+              </div>
 
-                <Nav className="navbar-nav-hover align-items-lg-center" navbar>
-                  {/* <form> */}
-                  {this.renderSearchBar()}
-                  {this.renderUserItem()}
-                  {/* {this.renderDropdown()} */}
-                  {/* </form> */}
-                </Nav>
+              <Nav className="navbar-nav-hover justify-content-center" navbar>
+                {/* <form> */}
+                {this.renderSearchBar()}
+                {this.renderUserItem()}
+                {/* {this.renderDropdown()} */}
+                {/* </form> */}
+              </Nav>
 
-                {/* <Nav>
+              {/* <Nav>
                 <FormGroup>
         <Label for="exampleSelect">Select</Label>
         <Input type="select" name="select" id="exampleSelect">
@@ -367,50 +371,54 @@ class UserNavbar extends React.Component {
       </FormGroup>
                 </Nav> */}
 
-                <Nav
-                  className="navbar-nav-hover align-items-lg-center ml-lg-auto"
-                  navbar
-                >
-                  <NavItem>
-                    <NavLink
-                      className="nav-link-icon"
-                      to="/home"
-                      tag={Link}
-                      // href="#pablo"
-                      // onClick={(e) => e.preventDefault()}
+              <Nav
+                className="navbar-nav-hover align-items-lg-center ml-lg-auto"
+                navbar
+              >
+                <NavItem>
+                  <NavLink
+                    className="nav-link-icon"
+                    to="/home"
+                    tag={Link}
+                    // href="#pablo"
+                    // onClick={(e) => e.preventDefault()}
+                  >
+                    <i className="ni ni-world" style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}} />
+                    <span className="nav-link-inner--text description"
+                    style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}
                     >
-                      <i className="ni ni-world" />
-                      <span className="nav-link-inner--text description">
-                        Timeline
-                      </span>
-                    </NavLink>
-                  </NavItem>
+                      Timeline
+                    </span>
+                  </NavLink>
+                </NavItem>
 
-                  <NavItem>
-                    <NavLink
-                      className="nav-link-icon"
-                      to="/profile"
-                      tag={Link}
-                      // href="#pablo"
-                      // onClick={(e) => e.preventDefault()}
-                    >
-                      <i className="ni ni-circle-08" />
-                      <span className="nav-link-inner--text description">
-                        Profile
-                      </span>
-                    </NavLink>
-                  </NavItem>
+                <NavItem>
+                  <NavLink
+                    className="nav-link-icon"
+                    to="/profile"
+                    tag={Link}
+                    // href="#pablo"
+                    // onClick={(e) => e.preventDefault()}
+                  >
+                    <i className="ni ni-circle-08" style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}/>
+                    <span className="nav-link-inner--text description"
+                                        style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}>
+                      Profile
+                    </span>
+                  </NavLink>
+                </NavItem>
 
-                  <NavItem>
-                    <NavLink className="nav-link-icon" to="/group" tag={Link}>
-                      <i className="ni ni-planet" />
-                      <span className="nav-link-inner--text description">
-                        Groups
-                      </span>
-                    </NavLink>
-                  </NavItem>
+                <NavItem>
+                  <NavLink className="nav-link-icon" to="/group" tag={Link}>
+                    <i className="ni ni-planet" style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}/>
+                    <span className="nav-link-inner--text description"
+                                        style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}>
+                      Groups
+                    </span>
+                  </NavLink>
+                </NavItem>
 
-                  {/* <NavItem>
+                {/* <NavItem>
                     <NavLink
                       className="nav-link-icon"
                       // href="#pablo"
@@ -419,52 +427,56 @@ class UserNavbar extends React.Component {
                       <i className="ni ni-favourite-28" />
                     </NavLink>
                   </NavItem> */}
-                  {/* {this.state.reqNotify ? (
+                {/* {this.state.reqNotify ? (
                    
                   ) : (
                     ""
                   )} */}
 
-                  <NavItem className="nav-link-icon">
-                    <NavLink
-                      // style={{ color: "red" }}
-                      className="nav-link-icon"
-                      onClick={() => this.toggleModal("notificationModal")}
+                <NavItem className="nav-link-icon">
+                  <NavLink
+                    // style={{ color: "red" }}
+                    className="nav-link-icon"
+                    onClick={() => this.toggleModal("notificationModal")}
+                  >
+                    <i className="ni ni-bell-55" style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}/>
+
+                    <span className="nav-link-inner--text description"
+                                        style={{textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}>
+                      {" "}
+                      Friend Requests
+                    </span>
+
+                    <Modal
+                      className="modal-dialog-centered modal-danger"
+                      contentClassName="bg-gradient-danger"
+                      isOpen={this.state.notificationModal}
+                      toggle={() => this.toggleModal("notificationModal")}
+                      size="lg"
                     >
-                      <i className="ni ni-bell-55" />
+                      <div className="modal-header"></div>
+                      <Friendreq />
 
-                      {/* <span className="nav-link-inner--text description">
-                        {" "}
-                        Friend Requests
-                      </span> */}
+                      {/* <Card>
+  hey
+</Card> */}
 
-                      <Modal
-                        className="modal-dialog-centered modal-danger"
-                        contentClassName="bg-gradient-danger"
-                        isOpen={this.state.notificationModal}
-                        toggle={() => this.toggleModal("notificationModal")}
-                        size="lg"
-                      >
-                        <div className="modal-header"></div>
-                        <Friendreq />
-                        <div className="modal-footer">
-                          <Button
-                            className="text-white ml-auto"
-                            color="link"
-                            data-dismiss="modal"
-                            type="button"
-                            onClick={() =>
-                              this.toggleModal("notificationModal")
-                            }
-                          >
-                            Close
-                          </Button>
-                        </div>
-                      </Modal>
-                      {/* </Col> */}
-                    </NavLink>
-                  </NavItem>
-                  {/* <NavItem>
+                      <div className="modal-footer">
+                        <Button
+                          className="text-white ml-auto"
+                          color="link"
+                          data-dismiss="modal"
+                          type="button"
+                          onClick={() => this.toggleModal("notificationModal")}
+                        >
+                          Close
+                        </Button>
+                      </div>
+                    </Modal>
+                    {/* </Col> */}
+                  </NavLink>
+                </NavItem>
+                {/* <NavItem>
                     <NavLink className="nav-link-icon" to="/heatmap" tag={Link}>
                       <i className="ni ni-pin-3" />
                       <span className="nav-link-inner--text description">
@@ -473,18 +485,32 @@ class UserNavbar extends React.Component {
                     </NavLink>
                   </NavItem> */}
 
-                  <UncontrolledDropdown nav>
-                    <DropdownToggle nav className="nav-link-icon">
-                      <i className="ni ni-settings-gear-65" />
-                      <span className="nav-link-inner--text d-lg-none">
-                        Settings
-                      </span>
-                    </DropdownToggle>
-                    <DropdownMenu
-                      aria-labelledby="navbar-success_dropdown_1"
-                      right
-                    >
-                      {/* <DropdownItem
+                <UncontrolledDropdown nav>
+                  <DropdownToggle nav className="nav-link-icon">
+                    <img
+                      style={{
+                        width: "22px",
+                        height: "22px",
+                        display: "block",
+                        objectFit: "cover",
+                        border: "1",
+                      }}
+                      className="rounded-circle img-responsive"
+                      // alt="..."
+                      src={
+                        JSON.parse(localStorage.getItem("uid"))
+                          ? "https://firebasestorage.googleapis.com/v0/b/travycomsats.appspot.com/o/profilePics%2F(" +
+                            JSON.parse(localStorage.getItem("uid")) +
+                            ")ProfilePic?alt=media&token=69135050-dec6-461d-bc02-487766e1c81d"
+                          : "https://image.shutterstock.com/image-vector/vector-man-profile-icon-avatar-260nw-1473553328.jpg"
+                      }
+                    />
+                  </DropdownToggle>
+                  <DropdownMenu
+                    aria-labelledby="navbar-success_dropdown_1"
+                    right
+                  >
+                    {/* <DropdownItem
                         to="/group"
                         tag={Link}
                         // onClick={this.logOut}
@@ -493,21 +519,17 @@ class UserNavbar extends React.Component {
                         Groups
                       </DropdownItem> */}
 
-                      <DropdownItem to="/edit-profile" tag={Link}>
-                        <i className="ni ni-settings" />
-                        Edit Profile
-                      </DropdownItem>
+                    <DropdownItem to="/edit-profile" tag={Link}                     style={{textShadow: "3px 2px 0px rgba(0, 0, 0, 0.23)"}}>
+                      <i className="ni ni-settings" />
+                      Edit Profile
+                    </DropdownItem>
 
-                      <DropdownItem
-                        to="/login"
-                        tag={Link}
-                        onClick={this.logOut}
-                      >
-                        <i className="ni ni-button-power" />
-                        Log Out
-                      </DropdownItem>
+                    <DropdownItem to="/login" tag={Link} onClick={this.logOut}                     style={{textShadow: "3px 2px 0px rgba(0, 0, 0, 0.23)"}}>
+                      <i className="ni ni-button-power" />
+                      Log Out
+                    </DropdownItem>
 
-                      {/* <DropdownItem
+                    {/* <DropdownItem
                         //   to="/timeline"
                         onClick={this.logOut}
                       >
@@ -523,16 +545,14 @@ class UserNavbar extends React.Component {
                       <span className="nav-link-inner--text ml-1">Log Out</span>
                     </Button>
                       </DropdownItem> */}
-                    </DropdownMenu>
-                  </UncontrolledDropdown>
-                </Nav>
-              </UncontrolledCollapse>
-            </Container>
-          </Navbar>
-        </header>
+                  </DropdownMenu>
+                </UncontrolledDropdown>
+              </Nav>
+            </UncontrolledCollapse>
+          </Container>
+        </Navbar>
       </>
     );
   }
 }
-
 export default UserNavbar;
