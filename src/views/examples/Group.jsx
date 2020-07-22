@@ -105,10 +105,7 @@ class Group extends React.Component {
   //   };
 
   componentDidMount() {
-
-
-    this.state.groupId= JSON.parse(localStorage.getItem("groupId"));
-
+    this.state.groupId = JSON.parse(localStorage.getItem("groupId"));
 
     // this.getProfilePic();
     this.getMembers();
@@ -506,41 +503,21 @@ class Group extends React.Component {
     return (
       <>
         <UserNavbar />
-        <main className="profile-page" ref="main">
-          <section className="section-profile-cover section-shaped my-0">
-            {/* Circles background */}
-            <div className="shape shape-style-1 shape-default alpha-4">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            {/* SVG separator */}
-            <div className="separator separator-bottom separator-skew">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="none"
-                version="1.1"
-                viewBox="0 0 2560 100"
-                x="0"
-                y="0"
-              >
-                <polygon
-                  className="fill-white"
-                  points="2560 0 2560 100 0 100"
-                />
-              </svg>
-            </div>
-          </section>
-          <section className="section mt--200">
-            <Container fluid>
+        <main className="profile-page"  ref="main"
+        style={{
+          // backgroundImage: "radial-gradient(circle, #053537, #005e5e, #008b85, #00baab, #12ebcf)"
+          // backgroundImage: "  linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1)",
+          backgroundImage: "linear-gradient(to right, #e4efe9, #d9ede8, #cfeae9, #c6e6ed, #c0e2f1, #bcdef2, #badaf3, #bad5f4, #b7d1f2, #b5ccf1, #b3c8ef, #b1c3ed)"
+
+        }}>
+          <section 
+          className="section section-blog-info"
+            style={{ marginTop: "160px" }}>
+            <Container >
               <Row>
                 <Col lg="9" className="order-lg-1">
                   <Card
-                    className="card-profile shadow mt--300"
+                    className="card-profile"
                     //   fluid body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}
                   >
                     <Row className="justify-content-center">
@@ -612,7 +589,7 @@ class Group extends React.Component {
                                 pills
                                 role="tablist"
                               >
-                                <NavItem>
+                                <NavItem> 
                                   <NavLink
                                     aria-selected={this.state.iconTabs === 1}
                                     className={classnames("mb-sm-3 mb-md-0", {
@@ -662,8 +639,8 @@ class Group extends React.Component {
                                 </NavItem>
                               </Nav>
                             </div>
-                            <Card className="shadow">
-                              <CardBody>
+                            <Card   style={{backgroundColor:"transparent"}}>
+                              <CardBody >
                                 <TabContent
                                   activeTab={"iconTabs" + this.state.iconTabs}
                                 >
@@ -742,186 +719,208 @@ class Group extends React.Component {
                   </Card>
                 </Col>
                 <Col lg="3" className="order-lg-2">
-                  <Card
-                    // className="shadow"
-                    className="shadow mt--300"
-                    //  body
-                    //  inverse
-                    style={{
-                      //  backgroundColor: "#333", borderColor: "#333" ,
-                      // position: "fixed",
-                      width: "100%",
-                      top: "75px",
-                    }}
-                  >
-                    <div className="bg-secondary" style={{ overflow: "auto" }}>
-                      <div>
-                        {/* <Link to="/peopleyoumayknow"> */}
-                        <span
-                          className="font-italic"
-                          style={{ color: "black" }}
-                        >
-                          Join these other groups
-                        </span>
-                        {/* </Link> */}
-                      </div>
+                    <div style={{ paddingTop: "10px" }}>
+                      <Card
+                        style={{
+                          backgroundColor: "transparent",
+                          // position: "fixed",
+                          width: "100%",
+                          // top: "175px",
+                          border: "0",
 
-                      {this.state.allGroups
-                        .slice(0, 2)
-                        .map((user, postindex) => (
-                          <div
-                            className="list-group list-group-chat list-group-flush"
-                            key={postindex}
-                            item={this.state.userRec}
-                          >
-                            <a
-                              href="javascript:;"
-                              className="list-group-item bg-gradient-white"
-                              onMouseOver={() => localStorage.setItem("groupId", JSON.stringify(user.groupId))}
-                              onClick={()=>{  window.location.reload(false) }
-                              }
+                        }}
+                      >
+                        <div style={{ overflow:"hidden" }}>
+                          <div>
+                            {/* <Link to="/peopleyoumayknow"> */}
+                            <span
+                              className="font-italic font-weight-bold text-white"
+                              // style={{ color: "black" }}
                             >
-                              <div className="media">
-                                {/* <Link to="/friend"> */}
-                                <img
-                                  style={{
-                                    width: "45px",
-                                    height: "45px",
-                                    display: "block",
-                                    objectFit: "cover",
+                              Suggested Groups
+                            </span>
+                            {/* </Link> */}
+                          </div>
+
+                          {this.state.suggestedGroups
+                            .slice(0, 2)
+                            .map((user, postindex) => (
+                              <div
+                                className="list-group list-group-chat list-group-flush"
+                                key={postindex}
+                                item={this.state.userRec}
+                                style={{ backgroundColor: "transparent" }}
+                              >
+                                <a
+                                  href="javascript:;"
+                                  // className="list-group-item bg-gradient-white"
+                                  onMouseOver={() =>
+                                    localStorage.setItem(
+                                      "groupId",
+                                      JSON.stringify(user.groupId)
+                                    )
+                                  }
+                                  onClick={() => {
+                                    window.location.reload(false);
                                   }}
-                                  className="rounded"
-                                  // src={user.avatar}
-                                  src={user.groupPhoto}
-                                />
-                                {/* </Link>{" "} */}
-                                <div className="media-body ml-2">
-                                  <div className="justify-content-between align-items-center">
-                                    <h6 className="mb-0 text-black font-weight-bold">
-                                      {user.groupTitle}
-                                      <small className="text-muted">
-                                        <span className="badge badge-success">
-                                          {" "}
-                                          {user.groupType}
-                                        </span>{" "}
-                                      </small>
-                                    </h6>
-                                    <div>
-                                      <small className="text-muted">
-                                        {user.groupDescription}
-                                        <span className="badge badge-success">
-                                          {/* {user.interestsArr[0]} */}
-                                        </span>{" "}
-                                        <span className="badge badge-success">
-                                          {/* {user.interestsArr[1]} */}
-                                        </span>{" "}
-                                        <span className="badge badge-success">
-                                          {/* {user.interestsArr[2]} */}
-                                        </span>
-                                      </small>
+                                  style={{
+                                    position: "relative",
+                                    display: "block",
+                                    padding: "1rem 1rem",
+                                    marginBottom: "-0.0625rem",
+                                  }}
+                                  // onMouseOver={() => this.onHover(user.userId)}
+                                >
+                                  <div className="media">
+                                    {/* <Link to="/friend"> */}
+                                    <img
+                                      style={{
+                                        width: "45px",
+                                        height: "45px",
+                                        display: "block",
+                                        objectFit: "cover",
+                                      }}
+                                      className="rounded"
+                                      // src={user.avatar}
+                                      src={user.groupPhoto}
+                                    />
+                                    {/* </Link>{" "} */}
+                                    <div className="media-body ml-2">
+                                      <div className="justify-content-between align-items-center">
+                                        <h6 className="mb-0 text-black font-weight-bold">
+                                          {user.groupTitle}
+                                          <small className="text-white">
+                                            <span className="badge badge-success">
+                                              {" "}
+                                              {user.groupType}
+                                            </span>{" "}
+                                          </small>
+                                        </h6>
+                                        <div>
+                                          <small className="text-white">
+                                            {user.groupDescription}
+                                            <span className="badge badge-success">
+                                              {/* {user.interestsArr[0]} */}
+                                            </span>{" "}
+                                            <span className="badge badge-success">
+                                              {/* {user.interestsArr[1]} */}
+                                            </span>{" "}
+                                            <span className="badge badge-success">
+                                              {/* {user.interestsArr[2]} */}
+                                            </span>
+                                          </small>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
+                                </a>
                               </div>
-                            </a>
+                            ))}
+                        </div>
+                      </Card>
+                      <Card
+                        // className="shadow"
+                        // className="shadow mt--300"
+                        style={{
+                          backgroundColor: "transparent",
+                          // position: "fixed",
+                          width: "100%",
+                          // top: "550px",
+                          border: "0",
+                        }}
+                      >
+                        <div style={{ overflow: "hidden", paddingTop:"20px" }}>
+                          <div>
+                            {/* <Link to="/peopleyoumayknow"> */}
+                            <span className="font-italic font-weight-bold text-white">
+                              Join these other groups
+                            </span>
+                            {/* </Link> */}
                           </div>
-                        ))}
-                    </div>
-                  </Card>
-                <div style={{ paddingTop:"10px" }}>  <Card
-                    className="shadow"
-                    //  body
-                    //  inverse
-                    style={{
-                      //  backgroundColor: "#333", borderColor: "#333" ,
-                      // position: "fixed",
-                      width: "100%",
-                      top: "75px",
-                    }}  
-                  >
-                    <div className="bg-secondary" style={{ overflow: "auto" }}>
-                      <div>
-                        {/* <Link to="/peopleyoumayknow"> */}
-                        <span
-                          className="font-italic"
-                          style={{ color: "black" }}
-                        >
-                          Suggested Groups
-                        </span>
-                        {/* </Link> */}
-                      </div>
 
-                      {this.state.suggestedGroups
-                        .slice(0, 2)
-                        .map((user, postindex) => (
-                          <div
-                            className="list-group list-group-chat list-group-flush"
-                            key={postindex}
-                            item={this.state.userRec}
-                          >
-                            <a
-                              href="javascript:;"
-                              className="list-group-item bg-gradient-white"
-                              onMouseOver={() => localStorage.setItem("groupId", JSON.stringify(user.groupId))}
-                              onClick={()=>{  window.location.reload(false) }
-                              }
-                              // onMouseOver={() => this.onHover(user.userId)}
-                            >
-                              <div className="media">
-                                {/* <Link to="/friend"> */}
-                                <img
-                                  style={{
-                                    width: "45px",
-                                    height: "45px",
-                                    display: "block",
-                                    objectFit: "cover",
+                          {this.state.allGroups
+                            .slice(0, 2)
+                            .map((user, postindex) => (
+                              <div
+                                className="list-group list-group-chat list-group-flush"
+                                key={postindex}
+                                item={this.state.userRec}
+                                style={{
+                                  backgroundColor: "transparent",
+                                }}
+                              >
+                                <a
+                                  href="javascript:;"
+                                  onMouseOver={() =>
+                                    localStorage.setItem(
+                                      "groupId",
+                                      JSON.stringify(user.groupId)
+                                    )
+                                  }
+                                  onClick={() => {
+                                    window.location.reload(false);
                                   }}
-                                  className="rounded"
-                                  // src={user.avatar}
-                                  src={user.groupPhoto}
-                                />
-                                {/* </Link>{" "} */}
-                                <div className="media-body ml-2">
-                                  <div className="justify-content-between align-items-center">
-                                    <h6 className="mb-0 text-black font-weight-bold">
-                                      {user.groupTitle}
-                                      <small className="text-muted">
-                                        <span className="badge badge-success">
-                                          {" "}
-                                          {user.groupType}
-                                        </span>{" "}
-                                      </small>
-                                    </h6>
-                                    <div>
-                                      <small className="text-muted">
-                                        {user.groupDescription}
-                                        <span className="badge badge-success">
-                                          {/* {user.interestsArr[0]} */}
-                                        </span>{" "}
-                                        <span className="badge badge-success">
-                                          {/* {user.interestsArr[1]} */}
-                                        </span>{" "}
-                                        <span className="badge badge-success">
-                                          {/* {user.interestsArr[2]} */}
-                                        </span>
-                                      </small>
+                                  style={{
+                                    position: "relative",
+                                    display: "block",
+                                    padding: "1rem 1rem",
+                                    marginBottom: "-0.0625rem",
+                                  }}
+                                >
+                                  <div className="media">
+                                    {/* <Link to="/friend"> */}
+                                    <img
+                                      style={{
+                                        width: "45px",
+                                        height: "45px",
+                                        display: "block",
+                                        objectFit: "cover",
+                                      }}
+                                      className="rounded"
+                                      // src={user.avatar}
+                                      src={user.groupPhoto}
+                                    />
+                                    {/* </Link>{" "} */}
+                                    <div className="media-body ml-2">
+                                      <div className="justify-content-between align-items-center">
+                                        <h6 className="mb-0 text-black font-weight-bold">
+                                          {user.groupTitle}
+                                          <small className="text-white">
+                                            <span className="badge badge-success">
+                                              {" "}
+                                              {user.groupType}
+                                            </span>{" "}
+                                          </small>
+                                        </h6>
+                                        <div>
+                                          <small className="text-white">
+                                            {user.groupDescription}
+                                            <span className="badge badge-success">
+                                              {/* {user.interestsArr[0]} */}
+                                            </span>{" "}
+                                            <span className="badge badge-success">
+                                              {/* {user.interestsArr[1]} */}
+                                            </span>{" "}
+                                            <span className="badge badge-success">
+                                              {/* {user.interestsArr[2]} */}
+                                            </span>
+                                          </small>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
+                                </a>
                               </div>
-                            </a>
-                          </div>
-                        ))}
+                            ))}
+                        </div>
+                      </Card>
                     </div>
-                  </Card>
-                </div>
-
                 </Col>
               </Row>
             </Container>
           </section>
+          <SimpleFooter />
         </main>
-        <SimpleFooter />
       </>
     );
   }

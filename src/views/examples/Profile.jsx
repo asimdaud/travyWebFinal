@@ -305,38 +305,22 @@ class Profile extends React.Component {
     return (
       <>
         <UserNavbar />
-        <main className="profile-page" ref="main">
-          <section className="section-profile-cover section-shaped my-0">
-            {/* Circles background */}
-            <div className="shape shape-style-1 shape-default alpha-4">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            {/* SVG separator */}
-            <div className="separator separator-bottom separator-skew">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="none"
-                version="1.1"
-                viewBox="0 0 2560 100"
-                x="0"
-                y="0"
-              >
-                <polygon
-                  className="fill-white"
-                  points="2560 0 2560 100 0 100"
-                />
-              </svg>
-            </div>
-          </section>
-          <section className="section mt--150">
-            <Container>
-              <Card className="card-profile shadow mt--300">
+        <main
+          className="profile-page"
+          ref="main"
+          style={{ 
+            // backgroundColor: "#f0f3f4", 
+            // backgroundImage: "linear-gradient(to left top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #ad9ae2, #c09be1, #d19bde, #fb93be, #ff9693, #ffa86a, #dec055)"
+            backgroundImage: "radial-gradient(circle, #e4efe9, #c4e0dd, #a7cfd9, #94bcd6, #93a5cf)"
+            // backgroundImage: "  linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1)",
+        }}
+        >
+          <section
+            className="section section-blog-info"
+            style={{ marginTop: "200px" }}
+          >
+                        <Container>
+              <Card className="card-profile shadow">
                 <div className="px-4">
                   <Row className="justify-content-center">
                     <Col className="order-lg-2" lg="3">

@@ -32,8 +32,8 @@ import { Redirect, Link } from "react-router-dom";
 // import {
 //   CardImg, CardText,  CardTitle, CardSubtitle
 // } from 'reactstrap';
-// import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 import UserNavbar from "components/Navbars/UserNavbar.jsx";
+import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 import PlaceCard from "components/PlaceCard.jsx";
 
 const user3 = JSON.parse(localStorage.getItem("uid"));
@@ -156,14 +156,12 @@ class Timeline extends React.Component {
       this.getProfilePic();
       this.getFollowedUsers();
       this.getFollowingPosts();
-  
+
       // this.getCurrentLocation().then(() => {
       this.getPlaces();
       // });
-  
-    });  }
-
-
+    });
+  }
 
   // Get all the users the current user3 is following
   getFollowedUsers = async () => {
@@ -495,41 +493,23 @@ class Timeline extends React.Component {
     return (
       <>
         <UserNavbar />
-        <main className="profile-page" ref="main">
-          <section className="section-profile-cover section-shaped my-0">
-            {/* Circles background   dark,light,default,primary */}
-            <div className="shape shape-style-1 shape-default alpha-4">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            {/* SVG separator */}
-            <div className="separator separator-bottom separator-skew">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="none"
-                version="1.1"
-                viewBox="0 0 2560 100"
-                x="0"
-                y="0"
-              >
-                <polygon
-                  className="fill-white"
-                  points="2560 0 2560 100 0 100"
-                />
-              </svg>
-            </div>
-          </section>
-          <section className="section section-blog-info mt--300">
-            <Row className="mt--200 d-flex justify-content-center">
+        <main
+          className="profile-page"
+          ref="main"
+          style={{ 
+            // backgroundColor: "#f0f3f4", 
+            // backgroundImage: "linear-gradient(to left top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #ad9ae2, #c09be1, #d19bde, #fb93be, #ff9693, #ffa86a, #dec055)"
+            // backgroundImage: "radial-gradient(circle, #e4efe9, #c4e0dd, #a7cfd9, #94bcd6, #93a5cf)"
+            
+          backgroundImage: "linear-gradient(to right bottom, #e4efe9, #d9ede8, #cfeae9, #c6e6ed, #c0e2f1, #bcdef2, #badaf3, #bad5f4, #b7d1f2, #b5ccf1, #b3c8ef, #b1c3ed)"
+            // backgroundImage: "  linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1)",
+        }}
+        >
+          <section
+            className="section section-blog-info"
+            style={{ marginTop: "20px" }}
+          >
+            <Row className="d-flex justify-content-center">
               <Col
                 sm="2"
                 md="2"
@@ -542,20 +522,22 @@ class Timeline extends React.Component {
                 }}
               >
                 <Card
-                  className="shadow"
+                  // className="shadow"
                   style={{
-                    position: "fixed",
-                    top: "175px",
+                    // position: "fixed",
+                    top: "80px",
                     // left:"0px",
                     borderRadius: "6px",
+                    backgroundColor:"transparent",
+                    border:"0"
                     // transform:"translateX(-20%)"
                   }}
                 >
                   <Link to="/heatmap">
                     <div className="hovereffect">
                       <span
-                        className="font-italic bg-secondary"
-                        style={{ color: "black", backgroundcolor: "#F7F7F7" }}
+                        className="font-italic font-weight-bold text-white"
+                        style={{ textShadow:"3px 2px 5px rgba(0, 5, 9, 1)" }}
                       >
                         View friend's posts on Map
                       </span>
@@ -606,14 +588,15 @@ class Timeline extends React.Component {
                 }}
               >
                 <Card
-                  className="shadow"
+                  // className="shadow"
                   //  body
                   //  inverse
                   style={{
-                    //  backgroundColor: "#333", borderColor: "#333" ,
+                    backgroundColor: "transparent",
                     position: "fixed",
                     width: "100%",
                     top: "175px",
+                    border: "0",
                   }}
                 >
                   {/* <Jumbotron
@@ -624,12 +607,12 @@ class Timeline extends React.Component {
                     <p className="lead text-black">Explore Places</p>
                   </Jumbotron>{" "} */}
 
-                  <div className="bg-secondary" style={{ overflow: "auto" }}>
+                  <div style={{ overflow: "auto" }}>
                     <div>
                       <Link to="/peopleyoumayknow">
                         <span
-                          className="font-italic"
-                          style={{ color: "black" }}
+                          className="font-italic font-weight-bold text-white"
+                          style={{ textShadow:"3px 2px 5px rgba(0, 5, 9, 1)"}}
                         >
                           People You May Know
                         </span>
@@ -640,13 +623,21 @@ class Timeline extends React.Component {
                       .slice(0, 2)
                       .map((user, postindex) => (
                         <div
-                          className="list-group list-group-chat list-group-flush"
+                          // className="list-group list-group-chat list-group-flush"
                           key={postindex}
                           item={this.state.userRec}
+                          style={{ backgroundColor: "transparent" }}
                         >
                           <a
                             href="javascript:;"
-                            className="list-group-item bg-gradient-white"
+                            // className="list-group-item bg-gradient-white"
+                            // className="list-group-item"
+                            style={{
+                              position: "relative",
+                              display: "block",
+                              padding: "1rem 1rem",
+                              marginBottom: "-0.0625rem",
+                            }}
                             onMouseOver={() => this.onHover(user.userId)}
                           >
                             <div className="media">
@@ -667,22 +658,24 @@ class Timeline extends React.Component {
                                 <div className="justify-content-between align-items-center">
                                   <h6 className="mb-0 text-black font-weight-bold">
                                     {user.name}{" "}
-                                    <small className="text-muted">
+                                    <small className="text-white" 
+                                    style={{textShadow:" 3px 2px 13px rgba(0, 0, 0, 0.38)"}}
+                                    >
                                       {"     @"} {user.username}
                                     </small>
                                   </h6>
                                   <div>
-                                    <small className="text-muted">
-                                      <span className="badge badge-success">
-                                        {user.interestsArr[0]}
-                                      </span>{" "}
-                                      <span className="badge badge-success">
-                                        {user.interestsArr[1]}
-                                      </span>{" "}
-                                      <span className="badge badge-success">
-                                        {user.interestsArr[2]}
-                                      </span>
-                                    </small>
+                                    {/* <small className="text-white"> */}
+                                    <span className="badge badge-success">
+                                      {user.interestsArr[0]}
+                                    </span>{" "}
+                                    <span className="badge badge-success">
+                                      {user.interestsArr[1]}
+                                    </span>{" "}
+                                    <span className="badge badge-success">
+                                      {user.interestsArr[2]}
+                                    </span>
+                                    {/* </small> */}
                                   </div>
                                 </div>
                               </div>
@@ -729,22 +722,25 @@ class Timeline extends React.Component {
                   }}
                 >
                   <Card
-                    className="shadow "
+                    // className="shadow "
                     //  body
                     //  inverse
                     style={{
+                      backgroundColor: "transparent",
+                      // top: "175px",
+                      border: "0",
                       //  backgroundColor: "#333", borderColor: "#333" ,
                       position: "fixed",
                       width: "100%",
-                      // top: "175px",
+                      top: "375px",
                     }}
                   >
-                    <div className="bg-secondary" style={{ overflow: "auto" }}>
+                    <div style={{ overflow: "auto" }}>
                       <Link to="/explore">
                         <div>
                           <span
-                            className="font-italic"
-                            style={{ color: "black" }}
+                            className="font-italic font-weight-bold text-white"
+                            style={{  textShadow:"3px 2px 5px rgba(0, 5, 9, 1)" }}
                           >
                             Explore places
                           </span>
@@ -754,11 +750,18 @@ class Timeline extends React.Component {
                         <div
                           className="list-group list-group-chat list-group-flush"
                           key={index}
-                          // item={this.state.userRec}
+                          // style={{ backgroundColor: "transparent" }}
                         >
                           <a
                             href="javascript:;"
-                            className="list-group-item bg-gradient-white"
+                            // className="list-group-item bg-gradient-white"
+                            // className="list-group-item"
+                            style={{
+                              position: "relative",
+                              display: "block",
+                              padding: "1rem 1rem",
+                              marginBottom: "-0.0625rem",
+                            }}
                             // onMouseOver={() => this.onHover(user.userId)}
                           >
                             <div className="media">
@@ -781,16 +784,18 @@ class Timeline extends React.Component {
                                 <div className="justify-content-between align-items-center">
                                   <h6 className="mb-0 text-black font-weight-bold">
                                     {data.name}{" "}
-                                    <small className="text-muted">
+                                    <small className="text-white"
+                                    style={{textShadow:" 3px 2px 13px rgba(0, 0, 0, 0.38)"}}
+                                    >
                                       {data.vicinity}
                                     </small>
                                   </h6>
                                   <div>
-                                    <small className="text-muted">
-                                      <span className="badge badge-info">
-                                        {data.type[0]}
-                                      </span>
-                                    </small>
+                                    {/* <small className="text-white"> */}
+                                    <span className="badge badge-info">
+                                      {data.type[0]}
+                                    </span>
+                                    {/* </small> */}
                                   </div>
                                 </div>
                               </div>
@@ -806,8 +811,9 @@ class Timeline extends React.Component {
             {/* </div> */}
             {/* </div> */}
           </section>
+          <SimpleFooter />
         </main>
-        <SimpleFooter />
+
       </>
     );
   }
